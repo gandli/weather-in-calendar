@@ -1,0 +1,53 @@
+{
+    "Navbar": {
+        "title": "WeatherCal",
+        "howItWorks": "How it works",
+        "pricing": "Pricing",
+        "getStarted": "Get Started"
+    },
+    "Hero": {
+        "badge": "Reimagined for 2026",
+        "titleStart": "Weather Forecast in",
+        "titleHighlight": "Your Calendar",
+        "description": "Get beautiful emoji weather forecasts directly in your Google Calendar, Outlook, or Apple Calendar. No apps to install.",
+        "placeholder": "Enter your city (e.g. New York)",
+        "generate": "Subscribe",
+        "successTitle": "Your Calendar is Ready!",
+        "successDesc": "Subscribe to the following URL in your calendar app to get the weather forecast for {city}.",
+        "copy": "Copy",
+        "howToAdd": "How to add to Google Calendar?",
+        "previewTitle": "Weather Forecast",
+        "previewTitleDefault": "Global Weather Preview",
+        "toggleUnit": "Toggle Unit"
+    },
+    "Features": {
+        "title": "Everything you need",
+        "mainTitle": "Weather forecasting made simple",
+        "description": "Stop switching between your calendar and weather apps. visual planning made effortless.",
+        "compatibility": "Universal Compatibility",
+        "compatibilityDesc": "Works seamlessly with Google Calendar, Outlook, Apple Calendar, and any app that supports .ics subscriptions.",
+        "uptodate": "Always Up-to-Date",
+        "uptodateDesc": "Forecasts update automatically in the background. You will always have the latest weather prediction right in your schedule.",
+        "emojis": "Beautiful Emojis",
+        "emojisDesc": "Crystal clear weather conditions visualized with native emojis. ☀️ 🌧️ ❄️ instantly recognizable at a glance.",
+        "friction": "Zero Friction",
+        "frictionDesc": "No apps to install, no accounts to create. Just enter your city and subscribe to the calendar link."
+    },
+    "Pricing": {
+        "title": "Completely Free",
+        "description": "Weather in Calendar is a passion project. No subscriptions, no hidden fees.",
+        "badge": "Community Supported",
+        "period": "/forever",
+        "features": [
+            "14-day forecast in your calendar",
+            "Updates automatically",
+            "Works with Google, Outlook, Apple",
+            "No account required",
+            "Privacy focused - no tracking"
+        ],
+        "support": "Support the Project"
+    },
+    "Footer": {
+        "copyright": "© {year} WeatherCal. Crafted with ❤️ for better planning."
+    }
+}
