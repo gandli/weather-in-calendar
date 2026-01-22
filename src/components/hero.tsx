@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Sparkles, Loader2, Calendar as CalendarIcon } from "lucide-react";
@@ -32,6 +32,9 @@ export function Hero() {
 
     const debouncedCity = useDebounce(city, 800);
     const defaultCity = locale === 'zh' ? '上海' : 'New York';
+
+    const weekdayFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { weekday: 'short' }), [locale]);
+    const dayFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { month: 'numeric', day: 'numeric' }), [locale]);
 
     // 获取预览数据
     const fetchPreview = useCallback(async (cityName: string) => {
@@ -89,6 +92,14 @@ export function Hero() {
     const convertTemp = (celsius: number) => {
         if (unit === "C") return celsius;
         return Math.round((celsius * 9) / 5 + 32);
+    };
+
+    const formatDate = (formatter: Intl.DateTimeFormat, dateVal: Date | string) => {
+        try {
+            return formatter.format(new Date(dateVal));
+        } catch (e) {
+            return "Invalid Date";
+        }
     };
 
     return (
@@ -179,11 +190,11 @@ export function Hero() {
                                     >
                                         <div className="flex justify-between items-start">
                                             <span className="text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
-                                                {isRealItem ? (new Date(weather.date).toLocaleDateString(locale, { weekday: 'short' }) as string) : `Day ${i + 1}`}
+                                                {isRealItem ? formatDate(weekdayFormatter, weather.date) : `Day ${i + 1}`}
                                             </span>
                                             {isRealItem && (
                                                 <span className="text-[10px] text-muted-foreground/30">
-                                                    {(new Date(weather.date).toLocaleDateString(locale, { month: 'numeric', day: 'numeric' }) as string)}
+                                                    {formatDate(dayFormatter, weather.date)}
                                                 </span>
                                             )}
                                         </div>
