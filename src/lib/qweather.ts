@@ -216,10 +216,7 @@ export async function searchCity(city: string): Promise<string | null> {
       return null;
     }
 
-    const arrayBuffer = await response.arrayBuffer();
-    const text = new TextDecoder().decode(arrayBuffer);
-
-    const data: QWeatherLocationResponse = JSON.parse(text);
+    const data: QWeatherLocationResponse = await response.json();
 
     if (data.code === '200' && data.location && data.location.length > 0) {
       return data.location[0].id;
@@ -344,9 +341,7 @@ export async function getHourlyForecast(locationId: string, hours: number = 24):
       throw new Error(`Weather API HTTP error: ${response.status}`);
     }
 
-    const arrayBuffer = await response.arrayBuffer();
-    const text = new TextDecoder().decode(arrayBuffer);
-    const data: QWeatherHourlyResponse = JSON.parse(text);
+    const data: QWeatherHourlyResponse = await response.json();
     console.log('Hourly response code:', data.code, 'items:', data.hourly?.length);
 
     if (data.code !== '200' || !data.hourly) {
