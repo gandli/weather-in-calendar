@@ -37,8 +37,12 @@ export function HeroInteractive({ initialWeather = [] }: HeroInteractiveProps) {
     const debouncedCity = useDebounce(city, 800);
     const defaultCity = locale === 'zh' ? '上海' : 'New York';
 
+    // Derived state for display - allows instant revert to default when input clears
+    const showDefault = !city && initialWeather.length > 0;
+    const displayWeather = showDefault ? initialWeather : previewWeather;
+
     useEffect(() => {
-        // Skip fetch if we have initial data and user hasn't typed anything
+        // If query is empty and we have initial data, skip fetch
         if (!debouncedCity && initialWeather.length > 0) {
             return;
         }
@@ -124,7 +128,7 @@ export function HeroInteractive({ initialWeather = [] }: HeroInteractiveProps) {
     }, [unit]);
 
     const weatherGrid = useMemo(() => {
-        const items = previewWeather.length > 0 ? previewWeather.slice(0, 14) : Array.from({ length: 14 });
+        const items = displayWeather.length > 0 ? displayWeather.slice(0, 14) : Array.from({ length: 14 });
 
         return items.map((item, i) => {
             const weather = item as WeatherEvent;
@@ -148,7 +152,7 @@ export function HeroInteractive({ initialWeather = [] }: HeroInteractiveProps) {
                     key={i}
                     className={cn(
                         "bg-background/60 p-4 h-28 sm:h-36 flex flex-col justify-between hover:bg-muted/50 transition-colors group relative",
-                        !previewWeather.length && "animate-pulse"
+                        !displayWeather.length && "animate-pulse"
                     )}
                 >
                     <div className="flex justify-between items-start">
@@ -175,7 +179,7 @@ export function HeroInteractive({ initialWeather = [] }: HeroInteractiveProps) {
                 </div>
             );
         });
-    }, [previewWeather, locale, convertTemp]);
+    }, [displayWeather, locale, convertTemp]);
 
     return (
         <>
