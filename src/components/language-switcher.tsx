@@ -2,6 +2,7 @@
 
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/navigation";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,9 +17,12 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     const locale = useLocale();
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     const switchLocale = (newLocale: "en" | "zh") => {
-        router.replace(pathname, { locale: newLocale });
+        const currentParams = searchParams.toString();
+        const newPath = currentParams ? `${pathname}?${currentParams}` : pathname;
+        router.replace(newPath, { locale: newLocale });
     };
 
     return (

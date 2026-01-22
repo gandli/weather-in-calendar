@@ -10,8 +10,15 @@ export function generateStaticParams() {
     return locales.map((locale) => ({ locale }));
 }
 
-export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+export default async function Home({
+    params,
+    searchParams
+}: {
+    params: Promise<{ locale: string }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
     const { locale } = await params;
+    const resolvedSearchParams = await searchParams;
     setRequestLocale(locale);
     return (
         <main className="min-h-screen bg-background text-foreground selection:bg-primary/20 flex flex-col relative overflow-hidden">
@@ -24,7 +31,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             </div>
 
             <Navbar />
-            <Hero />
+            <Hero searchParams={resolvedSearchParams} />
             <Features />
             <Pricing />
             <Footer />

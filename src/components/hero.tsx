@@ -1,30 +1,25 @@
 import { getLocale } from "next-intl/server";
-import { getWeatherByCity, WeatherEvent } from "@/lib/qweather";
-import { HeroInteractive } from "./hero-interactive";
+import { HeroSearch } from "./hero-search";
+import { WeatherDisplay } from "./weather-display";
 
-export async function Hero() {
+interface HeroProps {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
+
+export async function Hero({ searchParams }: HeroProps) {
   const locale = await getLocale();
   const defaultCity = locale === 'zh' ? '上海' : 'New York';
 
-  let initialWeather: WeatherEvent[] = [];
-  try {
-    // Fetch 15 days to match the client logic
-    initialWeather = await getWeatherByCity(defaultCity, 15);
-  } catch (error) {
-    console.error('Failed to fetch initial weather data for SSR:', error);
-    // If server fetch fails, we pass empty array.
-    // The client component will show loading state and attempt to fetch client-side.
-  }
+  const cityParam = searchParams?.city;
+  const city = typeof cityParam === 'string' && cityParam ? cityParam : defaultCity;
 
-  // Serialize the data to avoid "Date object cannot be passed to Client Component" error
-  // logic: JSON.stringify converts Date to ISO string.
-  // We use JSON.parse/stringify to simulate the boundary serialization and avoid TS issues if any
-  const serializedWeather = JSON.parse(JSON.stringify(initialWeather));
+  const unitParam = searchParams?.unit;
+  const unit = (typeof unitParam === 'string' && (unitParam === 'C' || unitParam === 'F')) ? unitParam : "C";
 
   return (
-    <HeroInteractive
-      initialWeather={serializedWeather}
-      defaultCity={defaultCity}
-    />
+    <section id="subscribe" className="relative pt-32 pb-20">
+      <HeroSearch defaultCity={city} defaultUnit={unit} />
+      <WeatherDisplay city={city} unit={unit} />
+    </section>
   );
 }
