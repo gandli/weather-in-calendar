@@ -273,7 +273,7 @@ export async function getWeatherNow(locationId: string): Promise<NowWeather> {
         'X-QW-Api-Key': QWEATHER_API_KEY,
       },
       next: {
-        revalidate: 900, // Cache current weather for 15 minutes
+        revalidate: 600, // Cache current weather for 10 minutes
       },
     });
 
