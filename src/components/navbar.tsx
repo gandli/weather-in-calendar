@@ -2,7 +2,7 @@
 
 import { Link } from "@/navigation";
 import { buttonVariants } from "@/components/ui/button";
-import { CalendarDays, CloudSun } from "lucide-react";
+import { CalendarDays, CloudSun, Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "./language-switcher";
@@ -53,6 +53,10 @@ export function Navbar() {
                         {t('getStarted')}
                     </a>
                     <LanguageSwitcher />
+                    <button className="sm:hidden p-2 -mr-2">
+                        <Menu className="w-6 h-6" />
+                        <span className="sr-only">Open menu</span>
+                    </button>
                 </div>
             </div>
         </nav>
