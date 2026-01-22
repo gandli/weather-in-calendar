@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getWeatherByCity, WeatherEvent } from '@/lib/qweather';
 
 function generateICSContent(events: WeatherEvent[], city: string, locale: string): string {
+  // Use slicing for performance instead of regex
   const formatDate = (date: Date) => {
-    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const iso = date.toISOString();
+    return iso.slice(0, 4) + iso.slice(5, 7) + iso.slice(8, 10) + 'T' +
+           iso.slice(11, 13) + iso.slice(14, 16) + iso.slice(17, 19) + 'Z';
   };
 
   const dateFormatter = new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-US', {
@@ -16,8 +19,9 @@ function generateICSContent(events: WeatherEvent[], city: string, locale: string
     return dateFormatter.format(date);
   };
 
-  const icsParts = [
-    `BEGIN:VCALENDAR
+  const dtStamp = formatDate(new Date());
+
+  let icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Weather in Calendar//Weather Forecast//EN
 CALSCALE:GREGORIAN
@@ -26,10 +30,10 @@ X-WR-CALNAME:${locale === 'zh' ? `${city}天气日历` : `${city} Weather Calend
 X-WR-CALDESC:${locale === 'zh' ? `${city}未来14天天气预报` : `14-day weather forecast for ${city}`}
 X-WR-TIMEZONE:Asia/Shanghai
 X-WR-CALDESC:Weather forecast calendar
-`
-  ];
+`;
 
-  events.forEach((event) => {
+  // Use string concatenation loop for better performance on small datasets
+  for (const event of events) {
     const eventDate = formatDate(event.date);
     const displayDate = formatDateDisplay(event.date);
 
@@ -39,9 +43,9 @@ X-WR-CALDESC:Weather forecast calendar
       ? `${city} - ${displayDate}\\n天气: ${event.condition}\\n温度: ${event.tempLow}°C ~ ${event.tempHigh}°C`
       : `${city} - ${displayDate}\\nWeather: ${event.condition}\\nTemperature: ${event.tempLow}°C ~ ${event.tempHigh}°C`;
 
-    icsParts.push(`BEGIN:VEVENT
+    icsContent += `BEGIN:VEVENT
 UID:${eventDate}-${city}@weather-in-calendar
-DTSTAMP:${formatDate(new Date())}
+DTSTAMP:${dtStamp}
 DTSTART;VALUE=DATE:${eventDate.slice(0, 8)}
 DTEND;VALUE=DATE:${eventDate.slice(0, 8)}
 SUMMARY:${summary}
@@ -49,12 +53,12 @@ DESCRIPTION:${description}
 LOCATION:${city}
 CATEGORIES:Weather
 END:VEVENT
-`);
-  });
+`;
+  }
 
-  icsParts.push(`END:VCALENDAR`);
+  icsContent += `END:VCALENDAR`;
 
-  return icsParts.join('');
+  return icsContent;
 }
 
 export async function GET(request: NextRequest) {
