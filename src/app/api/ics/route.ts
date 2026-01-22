@@ -14,9 +14,6 @@ function generateICSContent(events: WeatherEvent[], city: string, locale: string
     });
   };
 
-  const today = new Date();
-  const year = today.getFullYear();
-
   let ics = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Weather in Calendar//Weather Forecast//EN
@@ -86,8 +83,8 @@ export async function GET(request: NextRequest) {
         status: 200,
         headers,
       });
-    } catch (weatherError: any) {
-      if (weatherError.message?.includes('not found')) {
+    } catch (weatherError: unknown) {
+      if (weatherError instanceof Error && weatherError.message?.includes('not found')) {
         return NextResponse.json(
           { error: `City not found: ${decodedCity}` },
           { status: 404 }

@@ -165,7 +165,8 @@ A modern, premium web application that allows users to seamlessly integrate weat
  5. Done! Your app is live at `https://your-app.vercel.app`
 
  **Environment Variables (Optional):**
-- `NEXT_PUBLIC_OPENWEATHER_API_KEY`: For future real weather API integration
+- `QWEATHER_API_KEY`: For real weather API integration (using QWeather/HeFeng Weather). Defaults to a trial key if not set.
+- `QWEATHER_API_HOST`: API host for QWeather (optional).
 
  **Deployment URL Example:**
 ```
@@ -194,7 +195,7 @@ https://your-app.vercel.app/zh/api/ics?city=上海
 
 ### Immediate Enhancements
 
-• [ ] Real Weather API Integration
+• [x] Real Weather API Integration
 • [ ] Advanced Calendar Customization
 • [ ] User Accounts and preference storage
 
