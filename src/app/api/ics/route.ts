@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getWeatherByCity, WeatherEvent } from '@/lib/qweather';
 
-function generateICSContent(events: WeatherEvent[], city: string, locale: string): string {
-  const formatDate = (date: Date) => {
-    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-  };
+const DATE_FORMAT_REGEX = /[-:]/g;
 
+function formatDate(date: Date) {
+  const iso = date.toISOString();
+  if (iso.length === 24) {
+    return (
+      iso.substring(0, 4) +
+      iso.substring(5, 7) +
+      iso.substring(8, 13) +
+      iso.substring(14, 16) +
+      iso.substring(17, 19) +
+      'Z'
+    );
+  }
+  return iso.replace(DATE_FORMAT_REGEX, '').split('.')[0] + 'Z';
+}
+
+function generateICSContent(events: WeatherEvent[], city: string, locale: string): string {
   const formatDateDisplay = (date: Date) => {
     return date.toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
       month: 'long',
