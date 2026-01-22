@@ -6,12 +6,14 @@ function generateICSContent(events: WeatherEvent[], city: string, locale: string
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   };
 
+  const dateFormatter = new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
   const formatDateDisplay = (date: Date) => {
-    return date.toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    return dateFormatter.format(date);
   };
 
   let ics = `BEGIN:VCALENDAR
