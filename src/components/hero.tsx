@@ -1,9 +1,19 @@
 import { Sparkles } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { getTranslations, getLocale } from "next-intl/server";
 import { HeroInteractive } from "@/components/hero-interactive";
+import { getWeatherByCity } from "@/lib/qweather";
 
-export function Hero() {
-    const t = useTranslations('Hero');
+export async function Hero() {
+    const t = await getTranslations('Hero');
+    const locale = await getLocale();
+    const defaultCity = locale === 'zh' ? '上海' : 'New York';
+
+    let initialWeather = [];
+    try {
+        initialWeather = await getWeatherByCity(defaultCity, 15);
+    } catch (error) {
+        console.error('Failed to fetch initial weather:', error);
+    }
 
     return (
         <section id="subscribe" className="relative pt-32 pb-20">
@@ -26,7 +36,7 @@ export function Hero() {
                     {t('description')}
                 </p>
 
-                <HeroInteractive />
+                <HeroInteractive initialWeather={initialWeather} />
             </div>
         </section>
     );

@@ -20,13 +20,17 @@ function useDebounce<T>(value: T, delay: number): T {
     return debouncedValue;
 }
 
-export function HeroInteractive() {
+interface HeroInteractiveProps {
+    initialWeather?: WeatherEvent[];
+}
+
+export function HeroInteractive({ initialWeather = [] }: HeroInteractiveProps) {
     const t = useTranslations('Hero');
     const locale = useLocale();
     const [city, setCity] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
-    const [previewWeather, setPreviewWeather] = useState<WeatherEvent[]>([]);
+    const [previewWeather, setPreviewWeather] = useState<WeatherEvent[]>(initialWeather);
     const [unit, setUnit] = useState<"C" | "F">("C");
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -34,6 +38,11 @@ export function HeroInteractive() {
     const defaultCity = locale === 'zh' ? '上海' : 'New York';
 
     useEffect(() => {
+        // Skip fetch if we have initial data and user hasn't typed anything
+        if (!debouncedCity && initialWeather.length > 0) {
+            return;
+        }
+
         const controller = new AbortController();
 
         const fetchPreview = async () => {
@@ -62,7 +71,7 @@ export function HeroInteractive() {
         return () => {
             controller.abort();
         };
-    }, [debouncedCity, defaultCity, locale]);
+    }, [debouncedCity, defaultCity, locale, initialWeather]);
 
     useEffect(() => {
         const handleHashFocus = () => {
