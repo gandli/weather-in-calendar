@@ -6,6 +6,7 @@ import { CalendarDays, CloudSun } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "./language-switcher";
+import { ModeToggle } from "./mode-toggle";
 
 export function Navbar() {
     const t = useTranslations('Navbar');
@@ -53,6 +54,7 @@ export function Navbar() {
                         <span className="hidden sm:inline">{t('getStarted')}</span>
                     </a>
                     <LanguageSwitcher />
+                    <ModeToggle />
                 </div>
             </div>
         </nav>
