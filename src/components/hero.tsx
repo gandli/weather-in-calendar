@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Sparkles, Loader2, Calendar as CalendarIcon } from "lucide-react";
+import { ArrowRight, Sparkles, Loader2, Copy, Check } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { WeatherEvent } from "@/lib/qweather";
 import { cn } from "@/lib/utils";
@@ -25,36 +25,33 @@ export function Hero() {
     const locale = useLocale();
     const [city, setCity] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isCopied, setIsCopied] = useState(false);
     const [previewWeather, setPreviewWeather] = useState<WeatherEvent[]>([]);
-    const [isPreviewLoading, setIsPreviewLoading] = useState(false);
     const [unit, setUnit] = useState<"C" | "F">("C");
     const inputRef = useRef<HTMLInputElement>(null);
 
     const debouncedCity = useDebounce(city, 800);
     const defaultCity = locale === 'zh' ? '上海' : 'New York';
 
-    // 获取预览数据
-    const fetchPreview = useCallback(async (cityName: string) => {
-        setIsPreviewLoading(true);
-        try {
-            const response = await fetch(`/api/daily?city=${encodeURIComponent(cityName)}&locale=${locale}&days=15`);
-            const data = await response.json();
-            if (data.forecast) {
-                setPreviewWeather(data.forecast);
-            } else {
+    useEffect(() => {
+        const fetchPreview = async () => {
+            const cityName = debouncedCity || defaultCity;
+            try {
+                const response = await fetch(`/api/daily?city=${encodeURIComponent(cityName)}&locale=${locale}&days=15`);
+                const data = await response.json();
+                if (data.forecast) {
+                    setPreviewWeather(data.forecast);
+                } else {
+                    setPreviewWeather([]);
+                }
+            } catch (error) {
+                console.error('Failed to fetch preview:', error);
                 setPreviewWeather([]);
             }
-        } catch (error) {
-            console.error('Failed to fetch preview:', error);
-            setPreviewWeather([]);
-        } finally {
-            setIsPreviewLoading(false);
-        }
-    }, [locale]);
+        };
 
-    useEffect(() => {
-        fetchPreview(debouncedCity || defaultCity);
-    }, [debouncedCity, defaultCity, fetchPreview]);
+        fetchPreview();
+    }, [debouncedCity, defaultCity, locale]);
 
     useEffect(() => {
         const handleHashFocus = () => {
@@ -84,6 +81,21 @@ export function Hero() {
 
         window.location.href = webcalUrl;
         setTimeout(() => setIsLoading(false), 1000);
+    };
+
+    const handleCopy = async () => {
+        if (!city) return;
+
+        const origin = window.location.origin.replace(/^https?:\/\//, 'webcal://');
+        const webcalUrl = `${origin}/api/ics?city=${encodeURIComponent(city)}&locale=${locale}`;
+
+        try {
+            await navigator.clipboard.writeText(webcalUrl);
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy:', err);
+        }
     };
 
     const convertTemp = (celsius: number) => {
@@ -130,6 +142,16 @@ export function Hero() {
                     >
                         {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('generate')}
                         {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
+                    </Button>
+                    <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-12 w-12 rounded-full shrink-0 bg-white/50 backdrop-blur-sm border-white/20 dark:bg-black/50 hover:bg-white/60 dark:hover:bg-black/60"
+                        onClick={handleCopy}
+                        disabled={!city}
+                        title={t('copy')}
+                    >
+                        {isCopied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
                     </Button>
                 </div>
 

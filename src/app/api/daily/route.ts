@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getWeatherByCity, WeatherEvent } from '@/lib/qweather';
+import { getWeatherByCity } from '@/lib/qweather';
 
 export async function GET(request: NextRequest) {
     try {
@@ -34,8 +34,8 @@ export async function GET(request: NextRequest) {
                 status: 200,
                 headers,
             });
-        } catch (weatherError: any) {
-            if (weatherError.message?.includes('not found')) {
+        } catch (weatherError: unknown) {
+            if (weatherError instanceof Error && weatherError.message?.includes('not found')) {
                 return NextResponse.json(
                     { error: `City not found: ${decodedCity}` },
                     { status: 404 }
