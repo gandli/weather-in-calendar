@@ -1,6 +1,44 @@
 "use client";
 
+import { Github, Linkedin, Twitter } from "lucide-react";
+import { Github, Linkedin, Twitter } from "lucide-react";
+
+const socialLinks = [
+    {
+        name: 'Twitter',
+        url: 'https://twitter.com',
+        icon: Twitter,
+    },
+    {
+        name: 'GitHub',
+        url: 'https://github.com',
+        icon: Github,
+    },
+    {
+        name: 'LinkedIn',
+        url: 'https://linkedin.com',
+        icon: Linkedin,
+    }
+];
 import { useTranslations } from "next-intl";
+
+const socialLinks = [
+    {
+        name: 'Twitter',
+        url: 'https://twitter.com',
+        icon: Twitter,
+    },
+    {
+        name: 'GitHub',
+        url: 'https://github.com',
+        icon: Github,
+    },
+    {
+        name: 'LinkedIn',
+        url: 'https://linkedin.com',
+        icon: Linkedin,
+    }
+];
 
 export function Footer() {
     const t = useTranslations('Footer');
@@ -14,7 +52,12 @@ export function Footer() {
                     </p>
                 </div>
                 <div className="flex justify-center space-x-6 md:order-2">
-                    {/* Add social links or other footer items here */}
+                    {socialLinks.map((link) => (
+                        <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground">
+                            <span className="sr-only">{link.name}</span>
+                            <link.icon className="h-6 w-6" aria-hidden="true" />
+                        </a>
+                    ))}
                 </div>
             </div>
         </footer>
