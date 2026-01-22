@@ -33,6 +33,9 @@ export function Hero() {
     const debouncedCity = useDebounce(city, 800);
     const defaultCity = locale === 'zh' ? '上海' : 'New York';
 
+    const weekdayFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { weekday: 'short' }), [locale]);
+    const dayMonthFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { month: 'numeric', day: 'numeric' }), [locale]);
+
     const displayWeather = useMemo(() => {
         const baseData = previewWeather.length > 0 ? previewWeather.slice(0, 14) : Array.from({ length: 14 });
 
@@ -46,11 +49,11 @@ export function Hero() {
             return {
                 isRealItem: true,
                 weather: weather,
-                weekday: dateObj.toLocaleDateString(locale, { weekday: 'short' }),
-                dayMonth: dateObj.toLocaleDateString(locale, { month: 'numeric', day: 'numeric' })
+                weekday: weekdayFormatter.format(dateObj),
+                dayMonth: dayMonthFormatter.format(dateObj)
             };
         });
-    }, [previewWeather, locale]);
+    }, [previewWeather, weekdayFormatter, dayMonthFormatter]);
 
     useEffect(() => {
         const fetchPreview = async () => {
