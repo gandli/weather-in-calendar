@@ -33,7 +33,7 @@ export function Navbar() {
                     <div className="bg-primary/10 p-2 rounded-lg">
                         <CloudSun className="w-5 h-5 text-primary" />
                     </div>
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 hidden sm:block">
                         {t('title')}
                     </span>
                 </Link>
@@ -49,8 +49,8 @@ export function Navbar() {
                         className={cn(buttonVariants({ variant: "default", size: "sm" }), "rounded-full")}
                         onClick={handleGetStarted}
                     >
-                        <CalendarDays className="w-4 h-4 mr-2" />
-                        {t('getStarted')}
+                        <CalendarDays className="w-4 h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">{t('getStarted')}</span>
                     </a>
                     <LanguageSwitcher />
                 </div>
