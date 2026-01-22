@@ -3,16 +3,19 @@ import { getWeatherByCity, WeatherEvent } from '@/lib/qweather';
 
 function generateICSContent(events: WeatherEvent[], city: string, locale: string): string {
   const formatDate = (date: Date) => {
-    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const iso = date.toISOString();
+    return iso.substring(0, 4) + iso.substring(5, 7) + iso.substring(8, 10) + 'T' +
+           iso.substring(11, 13) + iso.substring(14, 16) + iso.substring(17, 19) + 'Z';
   };
 
-  const formatDateDisplay = (date: Date) => {
-    return date.toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
+  const now = new Date();
+  const dtStamp = formatDate(now);
+
+  const dateFormatter = new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
 
   let ics = `BEGIN:VCALENDAR
 VERSION:2.0
@@ -27,7 +30,7 @@ X-WR-CALDESC:Weather forecast calendar
 
   events.forEach((event) => {
     const eventDate = formatDate(event.date);
-    const displayDate = formatDateDisplay(event.date);
+    const displayDate = dateFormatter.format(event.date);
 
     const summary = `${event.emoji} ${event.tempLow}°~${event.tempHigh}°`;
 
@@ -37,7 +40,7 @@ X-WR-CALDESC:Weather forecast calendar
 
     ics += `BEGIN:VEVENT
 UID:${eventDate}-${city}@weather-in-calendar
-DTSTAMP:${formatDate(new Date())}
+DTSTAMP:${dtStamp}
 DTSTART;VALUE=DATE:${eventDate.slice(0, 8)}
 DTEND;VALUE=DATE:${eventDate.slice(0, 8)}
 SUMMARY:${summary}
