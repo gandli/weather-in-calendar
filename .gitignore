@@ -66,3 +66,4 @@ yarn-error.log*
 calendar.ics
 TESTING.md
 DEPLOYMENT.md
+*.log
