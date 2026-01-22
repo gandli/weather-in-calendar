@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { CalendarDays, CloudSun } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { LanguageSwitcher } from "./language-switcher";
 
 export function Navbar() {
     const t = useTranslations('Navbar');
@@ -51,6 +52,7 @@ export function Navbar() {
                         <CalendarDays className="w-4 h-4 mr-2" />
                         {t('getStarted')}
                     </a>
+                    <LanguageSwitcher />
                 </div>
             </div>
         </nav>
