@@ -123,7 +123,12 @@ export interface NowWeather {
   dew: number;
 }
 
-const QWEATHER_API_KEY = process.env.QWEATHER_API_KEY || '4bdb1ec836884bb1a8e77f2db3a42730';
+const QWEATHER_API_KEY = process.env.QWEATHER_API_KEY!;
+
+if (!QWEATHER_API_KEY) {
+  throw new Error('QWEATHER_API_KEY environment variable is not defined');
+}
+
 const QWEATHER_API_HOST = process.env.QWEATHER_API_HOST || 'https://kn4gka5baa.re.qweatherapi.com';
 const QWEATHER_GEO_API = `${QWEATHER_API_HOST}/geo/v2/city/lookup`;
 const QWEATHER_NOW_API = `${QWEATHER_API_HOST}/v7/weather/now`;
