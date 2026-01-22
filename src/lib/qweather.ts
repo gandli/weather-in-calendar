@@ -130,6 +130,12 @@ const QWEATHER_NOW_API = `${QWEATHER_API_HOST}/v7/weather/now`;
 const QWEATHER_DAILY_API_BASE = `${QWEATHER_API_HOST}/v7/weather`;
 const QWEATHER_HOURLY_API_BASE = `${QWEATHER_API_HOST}/v7/weather`;
 
+// Cache durations in seconds
+const REVALIDATE_CITY = 86400; // 24 hours
+const REVALIDATE_DAILY = 3600; // 1 hour
+const REVALIDATE_HOURLY = 1800; // 30 minutes
+const REVALIDATE_NOW = 900; // 15 minutes
+
 const emojiMap: Record<string, string> = {
   '100': '☀️',
   '101': '☁️',
@@ -208,7 +214,7 @@ export async function searchCity(city: string): Promise<string | null> {
         'X-QW-Api-Key': QWEATHER_API_KEY,
       },
       next: {
-        revalidate: 86400, // Cache city lookup for 24 hours
+        revalidate: REVALIDATE_CITY,
       },
     });
 
@@ -243,7 +249,7 @@ export async function getWeatherForecast(locationId: string, days: number = 7): 
         'X-QW-Api-Key': QWEATHER_API_KEY,
       },
       next: {
-        revalidate: 3600,
+        revalidate: REVALIDATE_DAILY,
       },
     });
     const data: QWeatherForecastResponse = await response.json();
@@ -273,7 +279,7 @@ export async function getWeatherNow(locationId: string): Promise<NowWeather> {
         'X-QW-Api-Key': QWEATHER_API_KEY,
       },
       next: {
-        revalidate: 900, // Cache current weather for 15 minutes
+        revalidate: REVALIDATE_NOW,
       },
     });
 
@@ -335,7 +341,7 @@ export async function getHourlyForecast(locationId: string, hours: number = 24):
         'X-QW-Api-Key': QWEATHER_API_KEY,
       },
       next: {
-        revalidate: 1800, // Cache hourly forecast for 30 minutes
+        revalidate: REVALIDATE_HOURLY,
       },
     });
 
