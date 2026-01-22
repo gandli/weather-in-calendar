@@ -207,6 +207,9 @@ export async function searchCity(city: string): Promise<string | null> {
       headers: {
         'X-QW-Api-Key': QWEATHER_API_KEY,
       },
+      next: {
+        revalidate: 86400, // Cache city lookup for 24 hours
+      },
     });
 
     if (!response.ok) {
@@ -269,6 +272,9 @@ export async function getWeatherNow(locationId: string): Promise<NowWeather> {
       headers: {
         'X-QW-Api-Key': QWEATHER_API_KEY,
       },
+      next: {
+        revalidate: 900, // Cache current weather for 15 minutes
+      },
     });
 
     if (!response.ok) {
@@ -327,6 +333,9 @@ export async function getHourlyForecast(locationId: string, hours: number = 24):
     const response = await fetch(url, {
       headers: {
         'X-QW-Api-Key': QWEATHER_API_KEY,
+      },
+      next: {
+        revalidate: 1800, // Cache hourly forecast for 30 minutes
       },
     });
 
