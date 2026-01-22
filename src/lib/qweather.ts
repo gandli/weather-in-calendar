@@ -239,6 +239,9 @@ export async function getWeatherForecast(locationId: string, days: number = 7): 
       headers: {
         'X-QW-Api-Key': QWEATHER_API_KEY,
       },
+      next: {
+        revalidate: 3600,
+      },
     });
     const data: QWeatherForecastResponse = await response.json();
 
