@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Sparkles, Loader2, Copy, Check } from "lucide-react";
@@ -32,6 +32,25 @@ export function Hero() {
 
     const debouncedCity = useDebounce(city, 800);
     const defaultCity = locale === 'zh' ? '上海' : 'New York';
+
+    const displayWeather = useMemo(() => {
+        const baseData = previewWeather.length > 0 ? previewWeather.slice(0, 14) : Array.from({ length: 14 });
+
+        return baseData.map((item) => {
+            const weather = item as WeatherEvent | undefined;
+            if (!weather || !weather.date) {
+                return { isRealItem: false, weather: null, weekday: '', dayMonth: '' };
+            }
+
+            const dateObj = new Date(weather.date);
+            return {
+                isRealItem: true,
+                weather: weather,
+                weekday: dateObj.toLocaleDateString(locale, { weekday: 'short' }),
+                dayMonth: dateObj.toLocaleDateString(locale, { month: 'numeric', day: 'numeric' })
+            };
+        });
+    }, [previewWeather, locale]);
 
     useEffect(() => {
         const fetchPreview = async () => {
@@ -188,9 +207,8 @@ export function Hero() {
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-px bg-muted/20 rounded-lg overflow-hidden border">
-                            {(previewWeather.length > 0 ? previewWeather.slice(0, 14) : Array.from({ length: 14 })).map((item, i) => {
-                                const weather = item as WeatherEvent;
-                                const isRealItem = !!(weather && weather.date);
+                            {displayWeather.map((item, i) => {
+                                const { isRealItem, weather, weekday, dayMonth } = item;
                                 return (
                                     <div
                                         key={i}
@@ -201,24 +219,24 @@ export function Hero() {
                                     >
                                         <div className="flex justify-between items-start">
                                             <span className="text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
-                                                {isRealItem ? (new Date(weather.date).toLocaleDateString(locale, { weekday: 'short' }) as string) : `Day ${i + 1}`}
+                                                {isRealItem ? weekday : `Day ${i + 1}`}
                                             </span>
                                             {isRealItem && (
                                                 <span className="text-[10px] text-muted-foreground/30">
-                                                    {(new Date(weather.date).toLocaleDateString(locale, { month: 'numeric', day: 'numeric' }) as string)}
+                                                    {dayMonth}
                                                 </span>
                                             )}
                                         </div>
                                         <div className="text-center py-2">
                                             <div className="text-2xl sm:text-3xl mb-1 group-hover:scale-110 transition-transform duration-300">
-                                                {isRealItem ? weather.emoji : ["☀️", "☁️", "🌧️", "⛅️"][i % 4]}
+                                                {isRealItem && weather ? weather.emoji : ["☀️", "☁️", "🌧️", "⛅️"][i % 4]}
                                             </div>
                                             <div className="text-xs font-bold bg-muted/30 rounded-full py-0.5 px-2 inline-block">
-                                                {isRealItem ? `${convertTemp(weather.tempLow)}° ~ ${convertTemp(weather.tempHigh)}°` : `${convertTemp(18 + i)}°`}
+                                                {isRealItem && weather ? `${convertTemp(weather.tempLow)}° ~ ${convertTemp(weather.tempHigh)}°` : `${convertTemp(18 + i)}°`}
                                             </div>
                                         </div>
                                         <div className="text-[10px] text-muted-foreground/60 truncate italic">
-                                            {isRealItem ? weather.condition : "Forecast..."}
+                                            {isRealItem && weather ? weather.condition : "Forecast..."}
                                         </div>
                                     </div>
                                 );
