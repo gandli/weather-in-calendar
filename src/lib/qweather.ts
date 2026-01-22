@@ -208,7 +208,7 @@ export async function searchCity(city: string): Promise<string | null> {
         'X-QW-Api-Key': QWEATHER_API_KEY,
       },
       next: {
-        revalidate: 86400, // Cache city lookup for 24 hours
+        revalidate: 3600, // Cache city lookup for 1 hour
       },
     });
 
@@ -216,10 +216,7 @@ export async function searchCity(city: string): Promise<string | null> {
       return null;
     }
 
-    const arrayBuffer = await response.arrayBuffer();
-    const text = new TextDecoder().decode(arrayBuffer);
-
-    const data: QWeatherLocationResponse = JSON.parse(text);
+    const data: QWeatherLocationResponse = await response.json();
 
     if (data.code === '200' && data.location && data.location.length > 0) {
       return data.location[0].id;
