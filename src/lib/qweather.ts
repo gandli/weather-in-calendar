@@ -332,7 +332,6 @@ export async function getHourlyForecast(locationId: string, hours: number = 24):
 
   try {
     const url = `${QWEATHER_HOURLY_API_BASE}/${hours}h?location=${locationId}`;
-    console.log('Fetching hourly:', url);
     const response = await fetch(url, {
       headers: {
         'X-QW-Api-Key': QWEATHER_API_KEY,
@@ -348,7 +347,6 @@ export async function getHourlyForecast(locationId: string, hours: number = 24):
     }
 
     const data: QWeatherHourlyResponse = await response.json();
-    console.log('Hourly response code:', data.code, 'items:', data.hourly?.length);
 
     if (data.code !== '200' || !data.hourly) {
       throw new Error(`Weather API error: ${data.code}`);
