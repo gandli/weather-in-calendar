@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getHourlyWeatherByCity, HourlyWeather } from '@/lib/qweather';
 
 function formatHourlyWeather(hourly: HourlyWeather[], locale: string) {
+  const formatter = new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
   return hourly.map((hour) => {
-    const timeStr = hour.time.toLocaleTimeString(locale === 'zh' ? 'zh-CN' : 'en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    const timeStr = formatter.format(hour.time);
 
     return {
       time: timeStr,
