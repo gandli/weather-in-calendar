@@ -104,6 +104,11 @@ bunx wrangler pages secret put QWEATHER_API_HOST
 - **Build output directory**: `.worker-next`
 - **Root directory**: `/` (默认)
 
+> [!CAUTION]
+> **不要在 wrangler.toml 中添加 [build] 章节**
+> 
+> 目前 Cloudflare Pages 对 `wrangler.toml` 的支持不支持 `[build]` 章节,添加会导致部署初始化失败。所有的构建命令必须在 Dashboard 中手动配置。
+
 #### 3. 设置环境变量
 
 在构建配置页面添加:
