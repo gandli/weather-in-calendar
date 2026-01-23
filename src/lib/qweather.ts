@@ -260,6 +260,7 @@ export async function getWeatherNow(locationId: string): Promise<NowWeather> {
     const headers = QWEATHER_API_KEY ? { 'X-QW-Api-Key': QWEATHER_API_KEY } : undefined;
     const response = await fetch(url, {
       headers,
+      next: { revalidate: 600 },
     });
 
     if (!response.ok) {
