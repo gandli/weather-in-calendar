@@ -318,6 +318,7 @@ export async function getHourlyForecast(locationId: string, hours: number = 24):
     const headers = QWEATHER_API_KEY ? { 'X-QW-Api-Key': QWEATHER_API_KEY } : undefined;
     const response = await fetch(url, {
       headers,
+      next: { revalidate: 1800 },
     });
 
     if (!response.ok) {
