@@ -30,7 +30,7 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.15.1",
+    "@opennextjs/cloudflare": "^0.2.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

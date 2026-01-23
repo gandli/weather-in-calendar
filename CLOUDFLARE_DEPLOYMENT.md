@@ -94,10 +94,15 @@ bunx wrangler pages secret put QWEATHER_API_HOST
 
 #### 2. 配置构建设置
 
-- **Framework preset**: Next.js
+> [!IMPORTANT]
+> **必须手动修改构建命令**
+> 
+> Cloudflare 默认的 "Next.js" 预设会强制使用旧版的 `next-on-pages`。请务必将 **Build command** 更改为 `npm run build:cloudflare`。
+
+- **Framework preset**: `None` (或保持 Next.js 但修改下方命令)
 - **Build command**: `npm run build:cloudflare`
 - **Build output directory**: `.worker-next`
-- **Root directory**: `/`(默认)
+- **Root directory**: `/` (默认)
 
 #### 3. 设置环境变量
 
