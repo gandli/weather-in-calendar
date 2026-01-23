@@ -1,0 +1,12 @@
+name = "weather-in-calendar"
+compatibility_date = "2024-01-01"
+
+pages_build_output_dir = ".worker-next"
+
+[observability]
+enabled = true
+
+# Environment variables (configure in Cloudflare dashboard or via wrangler secret)
+# [vars]
+# QWEATHER_API_KEY = ""
+# QWEATHER_API_HOST = ""

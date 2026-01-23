@@ -185,6 +185,27 @@ https://your-app.vercel.app/zh/api/ics?city=上海
  npm start  # Run production server locally
  ```
 
+ ### Cloudflare Pages (Alternative Production Deployment)
+
+ **Why Cloudflare Pages?**
+- Unlimited bandwidth on free tier
+- Global CDN with excellent performance
+- Built-in DDoS protection
+- Competitive pricing for paid tiers
+
+ **Quick Deploy:**
+
+ ```bash
+ # Build for Cloudflare
+ npm run build:cloudflare
+ 
+ # Deploy
+ npm run deploy:cloudflare
+ ```
+
+ **Detailed Guide:** See [CLOUDFLARE_DEPLOYMENT.md](CLOUDFLARE_DEPLOYMENT.md) for complete setup instructions.
+
+
 ### Styling
 
 • Tailwind CSS v4 configuration in `tailwind.config.ts`

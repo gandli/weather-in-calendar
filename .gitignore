@@ -53,6 +53,9 @@ yarn-error.log*
 # 部署平台
 # ====================
 .vercel
+.worker-next
+.wrangler
+.open-next
 
 # ====================
 # TypeScript
@@ -66,3 +69,4 @@ yarn-error.log*
 calendar.ics
 TESTING.md
 DEPLOYMENT.md
+.open-next
