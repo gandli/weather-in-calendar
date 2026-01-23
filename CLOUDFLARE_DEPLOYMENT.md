@@ -65,7 +65,7 @@ npm run cf-typegen
 ## 🐛 常见问题
 
 ### 1. 部署失败提示 "Configuration file for Pages projects does not support 'build'"
-**解决**: 确保 `wrangler.toml` 中没有 `[build]` 章节。所有构建指令应通过 CLI 执行或在 Dashboard 中配置。
+**解决**: 确保 `wrangler.jsonc` 中没有 `[build]` 章节。所有构建指令应通过 CLI 执行或在 Dashboard 中配置。
 
 ### 2. 静态页面 404
 **解决**: 确保 `next.config.ts` 中设置了 `trailingSlash: true`，这是 Cloudflare 路由机制的推荐配置。

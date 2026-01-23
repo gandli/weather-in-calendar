@@ -55,7 +55,10 @@ export function WeatherDisplay({
             window.dispatchEvent(new CustomEvent('weather-status', { detail: { hasData: false, isLoading: true } }));
             try {
                 const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
-                const data = await response.json();
+                interface RawWeatherEvent extends Omit<WeatherEvent, 'date'> {
+                    date: string;
+                }
+                const data = await response.json() as RawWeatherEvent[] & { error?: string };
 
                 if (!response.ok) {
                     if (response.status === 404) {
@@ -68,10 +71,10 @@ export function WeatherDisplay({
                     return;
                 }
 
-                const processedData = data.map((d: { date: string | number | Date }) => ({
+                const processedData = data.map((d: RawWeatherEvent) => ({
                     ...d,
                     date: new Date(d.date)
-                }));
+                })) as WeatherEvent[];
                 setWeatherData(processedData);
                 window.dispatchEvent(new CustomEvent('weather-status', { detail: { hasData: true, isLoading: false } }));
             } catch (err) {
