@@ -205,6 +205,7 @@ export async function searchCity(city: string): Promise<string | null> {
     const headers = QWEATHER_API_KEY ? { 'X-QW-Api-Key': QWEATHER_API_KEY } : undefined;
     const response = await fetch(url, {
       headers,
+      next: { revalidate: 86400 },
     });
 
     if (!response.ok) {
