@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getWeatherByCity, WeatherEvent } from '@/lib/qweather';
 
+const dateFormatters: Record<string, Intl.DateTimeFormat> = {};
+
+function getDateFormatter(locale: string): Intl.DateTimeFormat {
+  const key = locale === 'zh' ? 'zh-CN' : 'en-US';
+  if (!dateFormatters[key]) {
+    dateFormatters[key] = new Intl.DateTimeFormat(key, {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }
+  return dateFormatters[key];
+}
+
 function generateICSContent(events: WeatherEvent[], city: string, locale: string): string {
   const formatDate = (date: Date) => {
     const iso = date.toISOString();
@@ -11,11 +25,7 @@ function generateICSContent(events: WeatherEvent[], city: string, locale: string
   const now = new Date();
   const dtStamp = formatDate(now);
 
-  const dateFormatter = new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  const dateFormatter = getDateFormatter(locale);
 
   let ics = `BEGIN:VCALENDAR
 VERSION:2.0
