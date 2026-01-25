@@ -17,12 +17,7 @@ export default function RootPage() {
         const browserLang = typeof navigator !== 'undefined' ? navigator.language.toLowerCase() : 'en';
         const targetLocale = browserLang.startsWith('zh') ? 'zh' : 'en';
 
-        // 稍微延迟一下以展示精美的加载效果
-        const timer = setTimeout(() => {
-            router.replace(`/${targetLocale}`);
-        }, 800);
-
-        return () => clearTimeout(timer);
+        router.replace(`/${targetLocale}`);
     }, [router]);
 
     return (
