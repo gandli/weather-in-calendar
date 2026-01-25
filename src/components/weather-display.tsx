@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { WeatherEvent } from "@/lib/qweather";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
@@ -92,6 +92,9 @@ export function WeatherDisplay({
     }, [city, initialCity, initialData, t]);
 
 
+    const weekdayFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { weekday: 'short' }), [locale]);
+    const dayFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { month: 'numeric', day: 'numeric' }), [locale]);
+
     const convertTemp = (celsius: number) => {
         if (unit === "C") return celsius;
         return Math.round((celsius * 9) / 5 + 32);
@@ -123,10 +126,10 @@ export function WeatherDisplay({
                             >
                                 <div className="flex justify-between items-start">
                                     <span className="text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
-                                        {new Date(weather.date).toLocaleDateString(locale, { weekday: 'short' })}
+                                        {weekdayFormatter.format(new Date(weather.date))}
                                     </span>
                                     <span className="text-[10px] text-muted-foreground/30">
-                                        {new Date(weather.date).toLocaleDateString(locale, { month: 'numeric', day: 'numeric' })}
+                                        {dayFormatter.format(new Date(weather.date))}
                                     </span>
                                 </div>
                                 <div className="text-center py-2">
