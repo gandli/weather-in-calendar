@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, X } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -23,7 +23,6 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
     const locale = useLocale();
     const router = useRouter();
     const pathname = usePathname();
-    const searchParams = useSearchParams();
 
     const [city, setCity] = useState(initialCity);
     const [isLoading, setIsLoading] = useState(false);
@@ -111,7 +110,7 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
         }, 50);
 
         setTimeout(() => setIsLoading(false), 1000);
-    }, [city, locale, updateUrl, isLoading]);
+    }, [city, locale, updateUrl, isLoading, isWeatherLoading, hasData]);
 
 
     useEffect(() => {
@@ -139,21 +138,39 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
         }
     };
 
+    const handleClear = () => {
+        setCity('');
+        inputRef.current?.focus();
+    };
+
     return (
         <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-2 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-            <Input
-                ref={inputRef}
-                placeholder={t('placeholder')}
-                className="h-12 rounded-full px-6 bg-white/50 backdrop-blur-sm border-white/20 dark:bg-black/50"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                onBlur={handleBlur}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter" && !isLoading && !isWeatherLoading && city && hasData) {
-                        handleGenerate();
-                    }
-                }}
-            />
+            <div className="relative flex-1 w-full">
+                <Input
+                    ref={inputRef}
+                    placeholder={t('placeholder')}
+                    aria-label={t('placeholder')}
+                    className="h-12 rounded-full px-6 pr-12 bg-white/50 backdrop-blur-sm border-white/20 dark:bg-black/50"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    onBlur={handleBlur}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && !isLoading && !isWeatherLoading && city && hasData) {
+                            handleGenerate();
+                        }
+                    }}
+                />
+                {city && (
+                    <button
+                        onClick={handleClear}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted/50 transition-colors"
+                        aria-label="Clear search"
+                        type="button"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                )}
+            </div>
             <Button
                 size="lg"
                 className="h-12 rounded-full px-8 shadow-lg shadow-primary/25"
