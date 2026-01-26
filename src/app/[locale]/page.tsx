@@ -5,6 +5,8 @@ import { Pricing } from "@/components/pricing";
 import { Footer } from "@/components/footer";
 import { setRequestLocale } from 'next-intl/server';
 import { locales } from '@/i18n';
+import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
 
 export function generateStaticParams() {
     return locales.map((locale) => ({ locale }));
@@ -30,7 +32,13 @@ export default async function Home({
             </div>
 
             <Navbar />
-            <Hero city={city} locale={locale} />
+            <Suspense fallback={
+                <div className="flex justify-center py-20">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+            }>
+                <Hero city={city} locale={locale} />
+            </Suspense>
             <Features />
             <Pricing />
             <Footer />
