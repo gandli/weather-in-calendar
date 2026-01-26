@@ -119,20 +119,22 @@ export function WeatherDisplay({
                     </div>
                 ) : weatherData.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-px bg-muted/20 rounded-lg overflow-hidden border">
-                        {weatherData.slice(0, 14).map((weather, i) => (
-                            <div
-                                key={i}
-                                className="bg-background/60 p-4 h-28 sm:h-36 flex flex-col justify-between hover:bg-muted/50 transition-colors group relative"
-                            >
-                                <div className="flex justify-between items-start">
-                                    <span className="text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
-                                        {weekdayFormatter.format(new Date(weather.date))}
-                                    </span>
-                                    <span className="text-[10px] text-muted-foreground/30">
-                                        {dayFormatter.format(new Date(weather.date))}
-                                    </span>
-                                </div>
-                                <div className="text-center py-2">
+                        {weatherData.slice(0, 14).map((weather, i) => {
+                            const dateObj = weather.date instanceof Date ? weather.date : new Date(weather.date);
+                            return (
+                                <div
+                                    key={i}
+                                    className="bg-background/60 p-4 h-28 sm:h-36 flex flex-col justify-between hover:bg-muted/50 transition-colors group relative"
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <span className="text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
+                                            {weekdayFormatter.format(dateObj)}
+                                        </span>
+                                        <span className="text-[10px] text-muted-foreground/30">
+                                            {dayFormatter.format(dateObj)}
+                                        </span>
+                                    </div>
+                                    <div className="text-center py-2">
                                     <div className="text-2xl sm:text-3xl mb-1 group-hover:scale-110 transition-transform duration-300">
                                         {weather.emoji}
                                     </div>
@@ -144,7 +146,8 @@ export function WeatherDisplay({
                                     {weather.condition}
                                 </div>
                             </div>
-                        ))}
+                        );
+                    })}
                     </div>
                 ) : isLoading ? (
                     <div className="py-20 flex justify-center items-center">
