@@ -3,6 +3,11 @@ import { getWeatherByCity, WeatherEvent } from '@/lib/qweather';
 
 const dateFormatters: Record<string, Intl.DateTimeFormat> = {};
 
+function sanitizeInput(str: string): string {
+  // Remove control characters (including newlines) to prevent CRLF injection
+  return str.replace(/[\x00-\x1F\x7F]/g, '');
+}
+
 function getDateFormatter(locale: string): Intl.DateTimeFormat {
   const key = locale === 'zh' ? 'zh-CN' : 'en-US';
   if (!dateFormatters[key]) {
@@ -82,10 +87,11 @@ export async function GET(request: NextRequest) {
     }
 
     const decodedCity = decodeURIComponent(city);
+    const sanitizedCity = sanitizeInput(decodedCity);
 
     try {
-      const weatherEvents = await getWeatherByCity(decodedCity, 15);
-      const icsContent = generateICSContent(weatherEvents, decodedCity, locale);
+      const weatherEvents = await getWeatherByCity(sanitizedCity, 15);
+      const icsContent = generateICSContent(weatherEvents, sanitizedCity, locale);
 
       const buffer = Buffer.from(icsContent, 'utf-8');
 
@@ -101,7 +107,7 @@ export async function GET(request: NextRequest) {
     } catch (weatherError: unknown) {
       if (weatherError instanceof Error && weatherError.message?.includes('not found')) {
         return NextResponse.json(
-          { error: `City not found: ${decodedCity}` },
+          { error: `City not found: ${sanitizedCity}` },
           { status: 404 }
         );
       }
