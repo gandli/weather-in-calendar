@@ -365,3 +365,15 @@ export async function getHourlyWeatherByCity(city: string, hours: number = 24): 
 
   return getHourlyForecast(locationId, hours);
 }
+
+export const MAX_CITY_LENGTH = 100;
+
+export function validateCityInput(city: string | null): string | null {
+  if (!city) {
+    return 'City parameter is required';
+  }
+  if (city.length > MAX_CITY_LENGTH) {
+    return `City name too long (max ${MAX_CITY_LENGTH} chars)`;
+  }
+  return null;
+}
