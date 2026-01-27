@@ -12,6 +12,19 @@ interface WeatherDisplayProps {
     unit?: "C" | "F";
 }
 
+interface RawWeatherEvent extends Omit<WeatherEvent, 'date'> {
+    date: string | Date;
+}
+
+// Optimization: Ensure dates are instantiated once and stored in state
+// to avoid repeated `new Date()` calls during rendering loops.
+function normalizeWeatherData(data: (RawWeatherEvent | WeatherEvent)[]): WeatherEvent[] {
+    return data.map((d) => ({
+        ...d,
+        date: d.date instanceof Date ? d.date : new Date(d.date)
+    })) as WeatherEvent[];
+}
+
 export function WeatherDisplay({
     initialCity,
     initialData = [],
@@ -20,7 +33,7 @@ export function WeatherDisplay({
 }: WeatherDisplayProps) {
     const t = useTranslations('Hero');
     const [city, setCity] = useState(initialCity);
-    const [weatherData, setWeatherData] = useState<WeatherEvent[]>(initialData);
+    const [weatherData, setWeatherData] = useState<WeatherEvent[]>(() => normalizeWeatherData(initialData));
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<React.ReactNode | null>(null);
 
@@ -43,7 +56,7 @@ export function WeatherDisplay({
         }
 
         if (city === initialCity) {
-            setWeatherData(initialData);
+            setWeatherData(normalizeWeatherData(initialData));
             setError(null);
             window.dispatchEvent(new CustomEvent('weather-status', { detail: { hasData: initialData.length > 0 } }));
             return;
@@ -55,9 +68,6 @@ export function WeatherDisplay({
             window.dispatchEvent(new CustomEvent('weather-status', { detail: { hasData: false, isLoading: true } }));
             try {
                 const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
-                interface RawWeatherEvent extends Omit<WeatherEvent, 'date'> {
-                    date: string;
-                }
                 const data = await response.json() as RawWeatherEvent[] & { error?: string };
 
                 if (!response.ok) {
@@ -71,10 +81,7 @@ export function WeatherDisplay({
                     return;
                 }
 
-                const processedData = data.map((d: RawWeatherEvent) => ({
-                    ...d,
-                    date: new Date(d.date)
-                })) as WeatherEvent[];
+                const processedData = normalizeWeatherData(data);
                 setWeatherData(processedData);
                 window.dispatchEvent(new CustomEvent('weather-status', { detail: { hasData: true, isLoading: false } }));
             } catch (err) {
@@ -120,7 +127,8 @@ export function WeatherDisplay({
                 ) : weatherData.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-px bg-muted/20 rounded-lg overflow-hidden border">
                         {weatherData.slice(0, 14).map((weather, i) => {
-                            const dateObj = weather.date instanceof Date ? weather.date : new Date(weather.date);
+                            // Normalized in state, direct access
+                            const dateObj = weather.date;
                             return (
                                 <div
                                     key={i}
