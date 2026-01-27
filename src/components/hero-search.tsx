@@ -177,8 +177,8 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
                 onClick={handleGenerate}
                 disabled={isLoading || isWeatherLoading || !city || !hasData}
             >
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('generate')}
-                {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
+                {isLoading || isWeatherLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('generate')}
+                {!isLoading && !isWeatherLoading && <ArrowRight className="w-4 h-4 ml-2" />}
             </Button>
         </div>
     );
