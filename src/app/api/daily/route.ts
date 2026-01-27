@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getWeatherByCity } from '@/lib/qweather';
+import { getWeatherByCity, validateCityInput } from '@/lib/qweather';
 
 export async function GET(request: NextRequest) {
     try {
@@ -9,9 +9,10 @@ export async function GET(request: NextRequest) {
         const daysParam = searchParams.get('days');
         const days = daysParam ? parseInt(daysParam) : 7;
 
-        if (!city) {
+        const validationError = validateCityInput(city);
+        if (validationError) {
             return NextResponse.json(
-                { error: 'City parameter is required' },
+                { error: validationError },
                 { status: 400 }
             );
         }

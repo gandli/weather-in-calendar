@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getHourlyWeatherByCity, HourlyWeather } from '@/lib/qweather';
+import { getHourlyWeatherByCity, HourlyWeather, validateCityInput } from '@/lib/qweather';
 
 const hourlyFormatters = new Map<string, Intl.DateTimeFormat>();
 
@@ -51,9 +51,10 @@ export async function GET(request: NextRequest) {
     const hoursParam = searchParams.get('hours');
     const hours = hoursParam ? parseInt(hoursParam) : 24;
 
-    if (!city) {
+    const validationError = validateCityInput(city);
+    if (validationError) {
       return NextResponse.json(
-        { error: 'City parameter is required' },
+        { error: validationError },
         { status: 400 }
       );
     }

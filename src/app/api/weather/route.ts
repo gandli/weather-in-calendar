@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getWeatherByCity } from '@/lib/qweather';
+import { getWeatherByCity, validateCityInput } from '@/lib/qweather';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const city = searchParams.get('city');
 
-  if (!city) {
+  const validationError = validateCityInput(city);
+  if (validationError) {
     return NextResponse.json(
-      { error: 'City parameter is required' },
+      { error: validationError },
       { status: 400 }
     );
   }

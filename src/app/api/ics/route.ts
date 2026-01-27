@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getWeatherByCity, WeatherEvent } from '@/lib/qweather';
+import { getWeatherByCity, WeatherEvent, validateCityInput } from '@/lib/qweather';
 
 const dateFormatters: Record<string, Intl.DateTimeFormat> = {};
 
@@ -79,9 +79,10 @@ export async function GET(request: NextRequest) {
     const city = searchParams.get('city');
     const locale = searchParams.get('locale') || 'en';
 
-    if (!city) {
+    const validationError = validateCityInput(city);
+    if (validationError) {
       return NextResponse.json(
-        { error: 'City parameter is required' },
+        { error: validationError },
         { status: 400 }
       );
     }
