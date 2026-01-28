@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getWeatherByCity, WeatherEvent } from '@/lib/qweather';
+import { validateCityInput, sanitizeCityInput } from '@/lib/validation';
 
 const dateFormatters: Record<string, Intl.DateTimeFormat> = {};
-
-function sanitizeInput(str: string): string {
-  // Remove control characters (including newlines) to prevent CRLF injection
-  return str.replace(/[\x00-\x1F\x7F]/g, '');
-}
 
 function getDateFormatter(locale: string): Intl.DateTimeFormat {
   const key = locale === 'zh' ? 'zh-CN' : 'en-US';
@@ -87,7 +83,15 @@ export async function GET(request: NextRequest) {
     }
 
     const decodedCity = decodeURIComponent(city);
-    const sanitizedCity = sanitizeInput(decodedCity);
+
+    if (!validateCityInput(decodedCity)) {
+      return NextResponse.json(
+        { error: 'City parameter is too long' },
+        { status: 400 }
+      );
+    }
+
+    const sanitizedCity = sanitizeCityInput(decodedCity);
 
     try {
       const weatherEvents = await getWeatherByCity(sanitizedCity, 15);

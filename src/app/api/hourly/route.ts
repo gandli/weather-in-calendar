@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getHourlyWeatherByCity, HourlyWeather } from '@/lib/qweather';
+import { validateCityInput, sanitizeCityInput } from '@/lib/validation';
 
 const hourlyFormatters = new Map<string, Intl.DateTimeFormat>();
 
@@ -67,8 +68,17 @@ export async function GET(request: NextRequest) {
 
     const decodedCity = decodeURIComponent(city);
 
+    if (!validateCityInput(decodedCity)) {
+      return NextResponse.json(
+        { error: 'City parameter is too long' },
+        { status: 400 }
+      );
+    }
+
+    const sanitizedCity = sanitizeCityInput(decodedCity);
+
     try {
-      const hourlyWeather = await getHourlyWeatherByCity(decodedCity, hours);
+      const hourlyWeather = await getHourlyWeatherByCity(sanitizedCity, hours);
       const formattedWeather = formatHourlyWeather(hourlyWeather, locale);
 
       const headers = new Headers();
@@ -76,7 +86,7 @@ export async function GET(request: NextRequest) {
       headers.set('Cache-Control', 'public, max-age=1800');
 
       return NextResponse.json({
-        city: decodedCity,
+        city: sanitizedCity,
         locale,
         hours: hourlyWeather.length,
         forecast: formattedWeather,
@@ -87,7 +97,7 @@ export async function GET(request: NextRequest) {
     } catch (weatherError: unknown) {
       if (weatherError instanceof Error && weatherError.message?.includes('not found')) {
         return NextResponse.json(
-          { error: `City not found: ${decodedCity}` },
+          { error: `City not found: ${sanitizedCity}` },
           { status: 404 }
         );
       }
