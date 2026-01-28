@@ -21,7 +21,8 @@
         "noData": "暂无天气数据",
         "invalidCity": "请输入有效的城市名称",
         "cityNotFound": "未能识别地点 \"{city}\"",
-        "toggleUnit": "切换单位"
+        "toggleUnit": "切换单位",
+        "clearSearch": "清除搜索"
     },
     "Features": {
         "title": "你所需的一切",

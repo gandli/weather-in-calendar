@@ -164,7 +164,8 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
                     <button
                         onClick={handleClear}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted/50 transition-colors"
-                        aria-label="Clear search"
+                        aria-label={t('clearSearch')}
+                        title={t('clearSearch')}
                         type="button"
                     >
                         <X className="w-4 h-4" />

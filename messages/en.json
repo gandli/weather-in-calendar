@@ -21,7 +21,8 @@
         "noData": "No weather data available",
         "invalidCity": "Please enter a valid city name",
         "cityNotFound": "Location \"{city}\" not recognized",
-        "toggleUnit": "Toggle Unit"
+        "toggleUnit": "Toggle Unit",
+        "clearSearch": "Clear search"
     },
     "Features": {
         "title": "Everything you need",
