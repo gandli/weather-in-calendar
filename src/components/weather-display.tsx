@@ -125,13 +125,19 @@ export function WeatherDisplay({
                         {error}
                     </div>
                 ) : weatherData.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-px bg-muted/20 rounded-lg overflow-hidden border">
+                    <div
+                        role="list"
+                        aria-label={t('previewTitle')}
+                        className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-px bg-muted/20 rounded-lg overflow-hidden border"
+                    >
                         {weatherData.slice(0, 14).map((weather, i) => {
                             // Normalized in state, direct access
                             const dateObj = weather.date;
                             return (
                                 <div
                                     key={i}
+                                    role="listitem"
+                                    aria-label={`${weekdayFormatter.format(dateObj)}, ${dayFormatter.format(dateObj)}: ${weather.condition}. High ${convertTemp(weather.tempHigh)}°, Low ${convertTemp(weather.tempLow)}°`}
                                     className="bg-background/60 p-4 h-28 sm:h-36 flex flex-col justify-between hover:bg-muted/50 transition-colors group relative"
                                 >
                                     <div className="flex justify-between items-start">
