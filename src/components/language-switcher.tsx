@@ -30,6 +30,7 @@ export function LanguageSwitcher() {
             className="rounded-full" 
             onClick={toggleLocale}
             title={locale === 'en' ? 'Switch to Chinese' : '切换至英文'}
+            aria-label={locale === 'en' ? 'Switch to Chinese' : '切换至英文'}
         >
             <Languages className="h-4 w-4" />
         </Button>
