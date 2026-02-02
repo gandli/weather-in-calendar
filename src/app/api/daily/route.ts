@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getWeatherByCity } from '@/lib/qweather';
+import { validateCityInput, sanitizeCityInput } from '@/lib/validation';
 
 export async function GET(request: NextRequest) {
     try {
@@ -18,15 +19,24 @@ export async function GET(request: NextRequest) {
 
         const decodedCity = decodeURIComponent(city);
 
+        if (!validateCityInput(decodedCity)) {
+            return NextResponse.json(
+                { error: 'City parameter is too long' },
+                { status: 400 }
+            );
+        }
+
+        const sanitizedCity = sanitizeCityInput(decodedCity);
+
         try {
-            const weatherEvents = await getWeatherByCity(decodedCity, days);
+            const weatherEvents = await getWeatherByCity(sanitizedCity, days);
 
             const headers = new Headers();
             headers.set('Content-Type', 'application/json');
             headers.set('Cache-Control', 'public, max-age=3600');
 
             return NextResponse.json({
-                city: decodedCity,
+                city: sanitizedCity,
                 locale,
                 days: weatherEvents.length,
                 forecast: weatherEvents,
@@ -37,7 +47,7 @@ export async function GET(request: NextRequest) {
         } catch (weatherError: unknown) {
             if (weatherError instanceof Error && weatherError.message?.includes('not found')) {
                 return NextResponse.json(
-                    { error: `City not found: ${decodedCity}` },
+                    { error: `City not found: ${sanitizedCity}` },
                     { status: 404 }
                 );
             }
