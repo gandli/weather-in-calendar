@@ -125,14 +125,19 @@ export function WeatherDisplay({
                         {error}
                     </div>
                 ) : weatherData.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-px bg-muted/20 rounded-lg overflow-hidden border">
+                    <ul className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-px bg-muted/20 rounded-lg overflow-hidden border list-none m-0 p-0">
                         {weatherData.slice(0, 14).map((weather, i) => {
                             // Normalized in state, direct access
                             const dateObj = weather.date;
+                            const minTemp = convertTemp(weather.tempLow);
+                            const maxTemp = convertTemp(weather.tempHigh);
+                            const ariaLabel = `${weekdayFormatter.format(dateObj)} ${dayFormatter.format(dateObj)}, ${weather.condition}, ${t('min')} ${minTemp}°, ${t('max')} ${maxTemp}°`;
+
                             return (
-                                <div
+                                <li
                                     key={i}
                                     className="bg-background/60 p-4 h-28 sm:h-36 flex flex-col justify-between hover:bg-muted/50 transition-colors group relative"
+                                    aria-label={ariaLabel}
                                 >
                                     <div className="flex justify-between items-start">
                                         <span className="text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
@@ -153,10 +158,10 @@ export function WeatherDisplay({
                                 <div className="text-[10px] text-muted-foreground/60 truncate italic">
                                     {weather.condition}
                                 </div>
-                            </div>
+                            </li>
                         );
                     })}
-                    </div>
+                    </ul>
                 ) : isLoading ? (
                     <div className="py-20 flex justify-center items-center">
                         <Loader2 className="w-8 h-8 animate-spin text-primary" />

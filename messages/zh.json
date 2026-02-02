@@ -22,7 +22,9 @@
         "invalidCity": "请输入有效的城市名称",
         "cityNotFound": "未能识别地点 \"{city}\"",
         "toggleUnit": "切换单位",
-        "clearSearch": "清除搜索"
+        "clearSearch": "清除搜索",
+        "min": "最低",
+        "max": "最高"
     },
     "Features": {
         "title": "你所需的一切",
