@@ -26,7 +26,13 @@ export async function GET(request: NextRequest) {
 
   try {
     const weatherEvents = await getWeatherByCity(sanitizedCity, 15);
-    return NextResponse.json(weatherEvents);
+
+    // Cache for 1 hour to reduce upstream API calls and improve latency
+    return NextResponse.json(weatherEvents, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
+      },
+    });
   } catch (error: unknown) {
     if (error instanceof Error && error.message?.includes('not found')) {
       return NextResponse.json(
