@@ -47,6 +47,7 @@ export function Navbar() {
                         className={cn(buttonVariants({ variant: "default", size: "icon" }), "rounded-full")}
                         onClick={handleGetStarted}
                         title={t('getStarted')}
+                        aria-label={t('getStarted')}
                     >
                         <CalendarDays className="w-4 h-4" />
                     </a>
