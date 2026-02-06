@@ -3,7 +3,8 @@
         "title": "WeatherCal",
         "howItWorks": "工作原理",
         "pricing": "价格",
-        "getStarted": "立即开始"
+        "getStarted": "立即开始",
+        "switchLanguage": "切换至英文"
     },
     "Hero": {
         "badge": "2026 全新重构",
