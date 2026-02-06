@@ -26,7 +26,12 @@ export async function GET(request: NextRequest) {
 
   try {
     const weatherEvents = await getWeatherByCity(sanitizedCity, 15);
-    return NextResponse.json(weatherEvents);
+
+    // Cache for 1 hour, stale-while-revalidate for 10 minutes
+    const headers = new Headers();
+    headers.set('Cache-Control', 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=600');
+
+    return NextResponse.json(weatherEvents, { headers });
   } catch (error: unknown) {
     if (error instanceof Error && error.message?.includes('not found')) {
       return NextResponse.json(
