@@ -101,6 +101,7 @@ export function WeatherDisplay({
 
     const weekdayFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { weekday: 'short' }), [locale]);
     const dayFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { month: 'numeric', day: 'numeric' }), [locale]);
+    const a11yDateFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'long', day: 'numeric' }), [locale]);
 
     const convertTemp = (celsius: number) => {
         if (unit === "C") return celsius;
@@ -121,20 +122,26 @@ export function WeatherDisplay({
                 </div>
 
                 {error ? (
-                    <div className="py-20 flex justify-center items-center text-destructive">
+                    <div role="alert" className="py-20 flex justify-center items-center text-destructive">
                         {error}
                     </div>
                 ) : weatherData.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-px bg-muted/20 rounded-lg overflow-hidden border">
+                    <ul className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-px bg-muted/20 rounded-lg overflow-hidden border">
                         {weatherData.slice(0, 14).map((weather, i) => {
                             // Normalized in state, direct access
                             const dateObj = weather.date;
                             return (
-                                <div
+                                <li
                                     key={i}
                                     className="bg-background/60 p-4 h-28 sm:h-36 flex flex-col justify-between hover:bg-muted/50 transition-colors group relative"
+                                    aria-label={t('weatherDescription', {
+                                        date: a11yDateFormatter.format(dateObj),
+                                        condition: weather.condition,
+                                        high: convertTemp(weather.tempHigh),
+                                        low: convertTemp(weather.tempLow)
+                                    })}
                                 >
-                                    <div className="flex justify-between items-start">
+                                    <div className="flex justify-between items-start" aria-hidden="true">
                                         <span className="text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
                                             {weekdayFormatter.format(dateObj)}
                                         </span>
@@ -142,23 +149,23 @@ export function WeatherDisplay({
                                             {dayFormatter.format(dateObj)}
                                         </span>
                                     </div>
-                                    <div className="text-center py-2">
-                                    <div className="text-2xl sm:text-3xl mb-1 group-hover:scale-110 transition-transform duration-300">
-                                        {weather.emoji}
+                                    <div className="text-center py-2" aria-hidden="true">
+                                        <div className="text-2xl sm:text-3xl mb-1 group-hover:scale-110 transition-transform duration-300">
+                                            {weather.emoji}
+                                        </div>
+                                        <div className="text-xs font-bold bg-muted/30 rounded-full py-0.5 px-2 inline-block">
+                                            {convertTemp(weather.tempLow)}° ~ {convertTemp(weather.tempHigh)}°
+                                        </div>
                                     </div>
-                                    <div className="text-xs font-bold bg-muted/30 rounded-full py-0.5 px-2 inline-block">
-                                        {convertTemp(weather.tempLow)}° ~ {convertTemp(weather.tempHigh)}°
+                                    <div className="text-[10px] text-muted-foreground/60 truncate italic" aria-hidden="true">
+                                        {weather.condition}
                                     </div>
-                                </div>
-                                <div className="text-[10px] text-muted-foreground/60 truncate italic">
-                                    {weather.condition}
-                                </div>
-                            </div>
-                        );
-                    })}
-                    </div>
+                                </li>
+                            );
+                        })}
+                    </ul>
                 ) : isLoading ? (
-                    <div className="py-20 flex justify-center items-center">
+                    <div role="status" aria-label={t('previewTitle')} className="py-20 flex justify-center items-center">
                         <Loader2 className="w-8 h-8 animate-spin text-primary" />
                     </div>
                 ) : (
