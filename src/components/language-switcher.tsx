@@ -1,11 +1,12 @@
 "use client";
 
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Languages } from "lucide-react";
 
 export function LanguageSwitcher() {
+    const t = useTranslations('Navbar');
     const locale = useLocale();
     const router = useRouter();
     const pathname = usePathname();
@@ -29,7 +30,8 @@ export function LanguageSwitcher() {
             size="icon" 
             className="rounded-full" 
             onClick={toggleLocale}
-            title={locale === 'en' ? 'Switch to Chinese' : '切换至英文'}
+            title={t('switchLanguage')}
+            aria-label={t('switchLanguage')}
         >
             <Languages className="h-4 w-4" />
         </Button>

@@ -3,7 +3,8 @@
         "title": "WeatherCal",
         "howItWorks": "How it works",
         "pricing": "Pricing",
-        "getStarted": "Get Started"
+        "getStarted": "Get Started",
+        "switchLanguage": "Switch to Chinese"
     },
     "Hero": {
         "badge": "Reimagined for 2026",
