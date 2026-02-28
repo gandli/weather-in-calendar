@@ -30,8 +30,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(weatherEvents, {
       status: 200,
       headers: {
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=600',
-      },
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=600'
+      }
     });
   } catch (error: unknown) {
     if (error instanceof Error && error.message?.includes('not found')) {

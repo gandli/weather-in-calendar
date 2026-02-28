@@ -28,13 +28,14 @@ async function main() {
     process.exit(1);
   } else {
     console.log('Cache-Control header is present');
-    const expectedDirectives = ['public', 'max-age=3600', 's-maxage=3600', 'stale-while-revalidate=600'];
-    const allDirectivesPresent = expectedDirectives.every(directive => cacheControl.includes(directive));
 
-    if (allDirectivesPresent) {
+    const requiredDirectives = ['public', 'max-age=3600', 's-maxage=3600', 'stale-while-revalidate=600'];
+    const missingDirectives = requiredDirectives.filter(d => !cacheControl.includes(d));
+
+    if (missingDirectives.length === 0) {
       console.log('PASS: Cache-Control header is correct');
     } else {
-      console.error(`FAIL: Cache-Control header is incorrect. Expected it to contain: ${expectedDirectives.join(', ')}`);
+      console.error(`FAIL: Cache-Control header is missing directives: ${missingDirectives.join(', ')}`);
       process.exit(1);
     }
   }
