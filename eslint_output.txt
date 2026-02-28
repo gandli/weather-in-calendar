@@ -1,0 +1,14 @@
+
+> weather-in-calendar@0.1.0 lint
+> eslint
+
+
+/app/cloudflare-env.d.ts
+  8573:44  warning  Unused eslint-disable directive (no problems were reported)
+  8589:70  warning  Unused eslint-disable directive (no problems were reported)
+
+/app/src/middleware.ts
+  4:28  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 3 problems (0 errors, 3 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.
