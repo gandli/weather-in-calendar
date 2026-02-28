@@ -1,10 +1,9 @@
 import { Sparkles } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { HeroSearch } from "./hero-search";
-import { WeatherDisplay } from "./weather-display";
+import { WeatherLoader } from "./weather-loader";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
-import { getWeatherByCity, WeatherEvent } from "@/lib/qweather";
 
 interface HeroProps {
     city?: string;
@@ -15,15 +14,6 @@ export async function Hero({ city, locale }: HeroProps) {
     const t = await getTranslations('Hero');
     const defaultCity = locale === 'zh' ? '上海' : 'New York';
     const displayCity = city || defaultCity;
-
-    let initialWeatherData: WeatherEvent[] = [];
-    try {
-        initialWeatherData = await getWeatherByCity(displayCity, 15);
-    } catch (e) {
-        if (!(e instanceof Error && e.message?.includes('not found'))) {
-            console.error('Failed to fetch initial weather:', e);
-        }
-    }
 
     return (
         <section id="subscribe" className="relative pt-32 pb-20">
@@ -46,18 +36,14 @@ export async function Hero({ city, locale }: HeroProps) {
                     {t('description')}
                 </p>
 
-                <HeroSearch initialCity={city || ""} hasInitialData={initialWeatherData.length > 0} />
+                <HeroSearch initialCity={city || ""} hasInitialData={false} />
 
                 <Suspense fallback={
                     <div className="mt-20 flex justify-center py-20">
                         <Loader2 className="w-8 h-8 animate-spin text-primary" />
                     </div>
                 }>
-                    <WeatherDisplay 
-                        initialCity={displayCity} 
-                        initialData={initialWeatherData} 
-                        locale={locale} 
-                    />
+                    <WeatherLoader city={displayCity} locale={locale} />
                 </Suspense>
             </div>
         </section>
