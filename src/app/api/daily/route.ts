@@ -17,7 +17,15 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        const decodedCity = decodeURIComponent(city);
+        let decodedCity: string;
+        try {
+            decodedCity = decodeURIComponent(city);
+        } catch (uriError) {
+            return NextResponse.json(
+                { error: 'Invalid city parameter encoding' },
+                { status: 400 }
+            );
+        }
 
         if (!validateCityInput(decodedCity)) {
             return NextResponse.json(
