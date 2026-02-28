@@ -7,9 +7,9 @@ export async function GET(request: NextRequest) {
 
   try {
     validateCityInput(city);
-  } catch (e) {
+  } catch (error) {
     return NextResponse.json(
-      { error: (e as Error).message },
+      { error: error instanceof Error ? error.message : 'Invalid city parameter' },
       { status: 400 }
     );
   }

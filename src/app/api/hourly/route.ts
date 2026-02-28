@@ -15,7 +15,7 @@ function getHourlyFormatter(locale: string): Intl.DateTimeFormat {
 }
 
 function formatHourlyWeather(hourly: HourlyWeather[], locale: string) {
-  // Optimization: Use cached Intl.DateTimeFormat instances (~10x faster)
+  // Optimization: Use cached Intl.DateTimeFormat instance (~10x faster)
   const formatter = getHourlyFormatter(locale);
 
   return hourly.map((hour) => {
@@ -53,9 +53,9 @@ export async function GET(request: NextRequest) {
 
     try {
       validateCityInput(city);
-    } catch (e) {
+    } catch (error) {
       return NextResponse.json(
-        { error: (e as Error).message },
+        { error: error instanceof Error ? error.message : 'Invalid city parameter' },
         { status: 400 }
       );
     }

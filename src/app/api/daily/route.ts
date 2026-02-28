@@ -11,8 +11,11 @@ export async function GET(request: NextRequest) {
 
         try {
             validateCityInput(city);
-        } catch (e) {
-            return NextResponse.json({ error: (e as Error).message }, { status: 400 });
+        } catch (error) {
+            return NextResponse.json(
+                { error: error instanceof Error ? error.message : 'Invalid city parameter' },
+                { status: 400 }
+            );
         }
 
         const decodedCity = decodeURIComponent(city);

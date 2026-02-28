@@ -40,7 +40,7 @@ PRODID:-//Weather in Calendar//Weather Forecast//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:${locale === 'zh' ? `${city}天气日历` : `${city} Weather Calendar`}
-X-WR-CALDESC:${locale === 'zh' ? `${city}未来 14 天天气预报` : `14-day weather forecast for ${city}`}
+X-WR-CALDESC:${locale === 'zh' ? `${city}未来14天天气预报` : `14-day weather forecast for ${city}`}
 X-WR-TIMEZONE:Asia/Shanghai
 X-WR-CALDESC:Weather forecast calendar
 `);
@@ -52,7 +52,7 @@ X-WR-CALDESC:Weather forecast calendar
     const summary = `${event.emoji} ${event.tempLow}°~${event.tempHigh}°`;
 
     const description = locale === 'zh'
-      ? `${city} - ${displayDate}\\n天气：${event.condition}\\n温度：${event.tempLow}°C ~ ${event.tempHigh}°C`
+      ? `${city} - ${displayDate}\\n天气: ${event.condition}\\n温度: ${event.tempLow}°C ~ ${event.tempHigh}°C`
       : `${city} - ${displayDate}\\nWeather: ${event.condition}\\nTemperature: ${event.tempLow}°C ~ ${event.tempHigh}°C`;
 
     icsParts.push(`BEGIN:VEVENT
@@ -81,9 +81,9 @@ export async function GET(request: NextRequest) {
 
     try {
       validateCityInput(city);
-    } catch (e) {
+    } catch (error) {
       return NextResponse.json(
-        { error: (e as Error).message },
+        { error: error instanceof Error ? error.message : 'Invalid city parameter' },
         { status: 400 }
       );
     }
