@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
         let decodedCity: string;
         try {
             decodedCity = decodeURIComponent(city);
-        } catch (uriError) {
+        } catch (e) {
             return NextResponse.json(
                 { error: 'Invalid city parameter encoding' },
                 { status: 400 }
