@@ -9,12 +9,10 @@ export async function GET(request: NextRequest) {
         const daysParam = searchParams.get('days');
         const days = daysParam ? parseInt(daysParam) : 7;
 
-        const validationError = validateCityInput(city);
-        if (validationError) {
-            return NextResponse.json(
-                { error: validationError },
-                { status: 400 }
-            );
+        try {
+            validateCityInput(city);
+        } catch (e) {
+            return NextResponse.json({ error: (e as Error).message }, { status: 400 });
         }
 
         const decodedCity = decodeURIComponent(city);

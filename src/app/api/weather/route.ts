@@ -5,10 +5,11 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const city = searchParams.get('city');
 
-  const validationError = validateCityInput(city);
-  if (validationError) {
+  try {
+    validateCityInput(city);
+  } catch (e) {
     return NextResponse.json(
-      { error: validationError },
+      { error: (e as Error).message },
       { status: 400 }
     );
   }
