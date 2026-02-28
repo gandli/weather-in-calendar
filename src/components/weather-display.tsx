@@ -165,7 +165,7 @@ export function WeatherDisplay({
                         })}
                     </ul>
                 ) : isLoading ? (
-                    <div role="status" aria-label={t('previewTitle')} className="py-20 flex justify-center items-center">
+                    <div role="status" aria-label={t('loadingPreview')} className="py-20 flex justify-center items-center">
                         <Loader2 className="w-8 h-8 animate-spin text-primary" />
                     </div>
                 ) : (

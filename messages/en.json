@@ -23,7 +23,8 @@
         "cityNotFound": "Location \"{city}\" not recognized",
         "toggleUnit": "Toggle Unit",
         "clearSearch": "Clear search",
-        "weatherDescription": "{date}, {condition}. High {high}°, Low {low}°."
+        "weatherDescription": "{date}, {condition}. High {high}°, Low {low}°.",
+        "loadingPreview": "Loading weather forecast"
     },
     "Features": {
         "title": "Everything you need",
