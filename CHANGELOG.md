@@ -2,28 +2,100 @@
 
 All notable changes to this project are documented in this file.
 
-## [0.0.1] - 2026-01-20
+## [unreleased]
 
-### 🚀 Added
-- **Real-time Weather Preview**: Implemented debounced search with 14-day weather preview in the Hero component
-- **Global Ambient Background**: Introduced ambient glow system based on UI/UX Pro Max specifications, enhancing overall page depth
-- **Default City Forecast**: Automatic display of default city weather preview (Shanghai for Chinese, New York for English) based on locale
-- **New API Architecture**: Restructured directory under `src/app/api` with dedicated routes for daily (`/api/daily`) and hourly (`/api/hourly`) forecasts
 
-### 🎨 Improved
-- **Cohesive Visual Flow**: Removed conflicting background gradients from individual components, achieving seamless transitions from Hero to Footer through unified ambient glow
-- **Glass Morphism Details**: Enhanced Backdrop Blur effects for Footer and feature cards with optimized border contrast
-- **Interactive Feedback**: Added micro-scale animations (`scale-[1.02]`) and cursor pointers to feature cards for better user interaction
-- **Dynamic Webcal Generation**: Replaced hardcoded `localhost:3000` with dynamic environment Origin for subscription link generation
+
+### ci
+
+- Add screenshot and auto-changelog workflows (#100)
+
+
+### ⚡ Performance
+
+- Optimize hourly weather formatting by hoisting Intl.DateTimeFormat
+
+- Cache searchCity API calls for 24h
+
+- Cache Intl.DateTimeFormat in ICS generation logic
+
+- Cache getWeatherNow API calls for 10 minutes
+
+- Move `emojiMap` to module scope in `qweather.ts`
+
+- Remove artificial 800ms startup delay
+
+- Optimize weather cache duration for freshness
+
+- Optimize redundant Date creation in WeatherDisplay loop
+
+- Optimize string concatenation in ICS generation using array join
+
+- Optimize date formatting and string concatenation (#95)
+
+- Stream initial weather fetch in Hero component (#68)
+
 
 ### 🐞 Fixed
-- **TypeScript Type Safety**: Resolved type inference and property access errors for `WeatherEvent` in Hero component
-- **Internationalization Completion**: Added missing translations for `previewTitle` and `previewTitleDefault` in both Chinese and English locales, eliminating console errors
-- **Data Consistency**: Adjusted ICS generation API to request 15-day forecasts by default, ensuring preview and subscription data alignment
 
-### ✨ Initial Release (Merged from 1.0.0)
-- Project foundation setup (Next.js 15, Tailwind CSS, Lucide Icons)
-- QWeather API integration
-- Basic ICS calendar subscription functionality
-- Bilingual support (Chinese/English)
+- 更新部署配置文件引用和天气数据类型处理
+
+- Prevent CRLF injection in ICS generation
+
+- Add aria-label to navbar get started button (#66)
+
+
+### 📝 Documentation
+
+- 添加Cloudflare Pages部署指南和配置说明
+
+- 更新 Cloudflare 部署文档中的构建配置说明
+
+- 更新 Cloudflare 部署指南支持 Workers 和 Pages
+
+
+### 🔧 Chore
+
+- Initial commit
+
+- 更新cloudflare-env.d.ts
+
+- 移除配置文件中的多余逗号
+
+- Bump next from 16.1.4 to 16.1.6
+
+- Bump the npm_and_yarn group across 1 directory with 4 updates (#97)
+
+- Remove .jules directory
+
+
+### 🚀 Added
+
+- Add caching to hourly weather fetch
+
+- Add clear button to hero search input
+
+- Add loading spinner during weather validation
+
+- Optimize WeatherDisplay date handling
+
+- Architectural analysis report
+
+- Add validation for city parameter
+
+- Localize clear search button aria-label and add tooltip
+
+- Add aria-labels to LanguageSwitcher and Navbar (#96)
+
+- Add security headers to next.config.ts (#94)
+
+- Add aria-labels to icon-only buttons for accessibility (#88)
+
+- Add Cache-Control header to weather API (#78)
+
+- Add aria-label to navbar get started button (#75)
+
+- Phase 3 product optimization and unified API errors (#98)
+
+- Phase 4 observability and release readiness (#99)
 
