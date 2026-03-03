@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,11 @@ function useDebounce<T>(value: T, delay: number): T {
     return debouncedValue;
 }
 
+const CITY_SUGGESTIONS = {
+    en: ["New York", "London", "Tokyo", "Singapore", "Sydney", "San Francisco", "Berlin", "Paris", "Hong Kong", "Fuzhou"],
+    zh: ["上海", "北京", "广州", "深圳", "杭州", "福州", "成都", "重庆", "苏州", "厦门"],
+};
+
 export function HeroSearch({ initialCity, hasInitialData }: { initialCity: string, hasInitialData: boolean }) {
     const t = useTranslations('Hero');
     const locale = useLocale();
@@ -29,8 +34,30 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
     const [isWeatherLoading, setIsWeatherLoading] = useState(false);
     const [hasData, setHasData] = useState(hasInitialData);
     const [inputError, setInputError] = useState<string | null>(null);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
     const inputRef = useRef<HTMLInputElement>(null);
     const debouncedCity = useDebounce(city, 500);
+
+    const suggestions = useMemo(() => {
+        const list = locale === 'zh' ? CITY_SUGGESTIONS.zh : CITY_SUGGESTIONS.en;
+        const q = city.trim().toLowerCase();
+        if (!q) return list.slice(0, 6);
+        return list
+            .filter((item) => item.toLowerCase().includes(q) && item.toLowerCase() !== q)
+            .slice(0, 6);
+    }, [city, locale]);
+
+    const isValidCity = (name: string) => {
+        const trimmed = name.trim();
+        if (trimmed.length < 2) return false;
+        const cityRegex = /^[\u4e00-\u9fa5a-zA-Z\s,.-]+$/;
+        return cityRegex.test(trimmed);
+    };
+
+    const emitCityChange = useCallback((cityName: string) => {
+        window.dispatchEvent(new CustomEvent('city-change', { detail: { city: cityName } }));
+    }, []);
 
     useEffect(() => {
         const handleWeatherStatus = (event: Event) => {
@@ -68,13 +95,6 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
         }
     }, [pathname, router]);
 
-    const isValidCity = (name: string) => {
-        const trimmed = name.trim();
-        if (trimmed.length < 2) return false;
-        const cityRegex = /^[\u4e00-\u9fa5a-zA-Z\s,.-]+$/;
-        return cityRegex.test(trimmed);
-    };
-
     useEffect(() => {
         const trimmedCity = city.trim();
         if (trimmedCity && trimmedCity !== initialCity) {
@@ -88,18 +108,18 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
             if (trimmedCity === "") {
                 setInputError(null);
                 updateUrl("", true);
-                window.dispatchEvent(new CustomEvent('city-change', { detail: { city: "" } }));
+                emitCityChange("");
             } else if (isValidCity(trimmedCity)) {
                 setInputError(null);
                 updateUrl(trimmedCity, true);
-                window.dispatchEvent(new CustomEvent('city-change', { detail: { city: trimmedCity } }));
+                emitCityChange(trimmedCity);
             } else {
                 setInputError(t('invalidCity'));
                 updateUrl(trimmedCity, true);
-                window.dispatchEvent(new CustomEvent('city-change', { detail: { city: "" } }));
+                emitCityChange("");
             }
         }
-    }, [debouncedCity, initialCity, updateUrl, t]);
+    }, [debouncedCity, initialCity, updateUrl, t, emitCityChange]);
 
     const handleGenerate = useCallback(() => {
         if (!city || isLoading || isWeatherLoading || !hasData) return;
@@ -140,11 +160,26 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
         if (trimmedCity !== city) {
             setCity(trimmedCity);
         }
+
+        setTimeout(() => {
+            setShowSuggestions(false);
+            setActiveSuggestionIndex(-1);
+        }, 120);
+    };
+
+    const handleSuggestionSelect = (selectedCity: string) => {
+        setCity(selectedCity);
+        setShowSuggestions(false);
+        setActiveSuggestionIndex(-1);
+        setInputError(null);
+        updateUrl(selectedCity, true);
+        emitCityChange(selectedCity);
     };
 
     const handleClear = () => {
         setCity('');
         setInputError(null);
+        setShowSuggestions(true);
         inputRef.current?.focus();
     };
 
@@ -166,9 +201,36 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
                     aria-label={t('placeholder')}
                     className="h-12 rounded-full px-6 pr-12 bg-white/50 backdrop-blur-sm border-white/20 dark:bg-black/50"
                     value={city}
-                    onChange={(e) => setCity(e.target.value)}
+                    onFocus={() => setShowSuggestions(true)}
+                    onChange={(e) => {
+                        setCity(e.target.value);
+                        setShowSuggestions(true);
+                        setActiveSuggestionIndex(-1);
+                    }}
                     onBlur={handleBlur}
                     onKeyDown={(e) => {
+                        if (showSuggestions && suggestions.length > 0) {
+                            if (e.key === 'ArrowDown') {
+                                e.preventDefault();
+                                setActiveSuggestionIndex((prev) => (prev + 1) % suggestions.length);
+                                return;
+                            }
+                            if (e.key === 'ArrowUp') {
+                                e.preventDefault();
+                                setActiveSuggestionIndex((prev) => (prev <= 0 ? suggestions.length - 1 : prev - 1));
+                                return;
+                            }
+                            if (e.key === 'Enter' && activeSuggestionIndex >= 0) {
+                                e.preventDefault();
+                                handleSuggestionSelect(suggestions[activeSuggestionIndex]);
+                                return;
+                            }
+                            if (e.key === 'Escape') {
+                                setShowSuggestions(false);
+                                setActiveSuggestionIndex(-1);
+                            }
+                        }
+
                         if (e.key === "Enter" && canSubmit) {
                             handleGenerate();
                         }
@@ -184,6 +246,27 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
                     >
                         <X className="w-4 h-4" />
                     </button>
+                )}
+
+                {showSuggestions && suggestions.length > 0 && (
+                    <ul className="absolute z-20 mt-2 w-full rounded-2xl border bg-background/95 backdrop-blur-sm shadow-lg p-2">
+                        {suggestions.map((suggestion, index) => (
+                            <li key={suggestion}>
+                                <button
+                                    type="button"
+                                    className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-colors ${
+                                        index === activeSuggestionIndex
+                                            ? 'bg-primary/10 text-primary'
+                                            : 'hover:bg-muted'
+                                    }`}
+                                    onMouseDown={(e) => e.preventDefault()}
+                                    onClick={() => handleSuggestionSelect(suggestion)}
+                                >
+                                    {suggestion}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
                 )}
             </div>
             <Button
