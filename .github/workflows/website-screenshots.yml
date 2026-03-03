@@ -42,13 +42,21 @@ jobs:
       - name: Wait for app
         run: npx wait-on http://127.0.0.1:3000/en
 
-      - name: Capture screenshots (EN/ZH)
+      - name: Capture screenshots (EN/ZH + Light/Dark)
         run: |
           mkdir -p screenshots
-          npx playwright screenshot --full-page --wait-for-selector "ul.grid" http://127.0.0.1:3000/en screenshots/en-full.png
-          npx playwright screenshot --full-page --wait-for-selector "ul.grid" http://127.0.0.1:3000/zh screenshots/zh-full.png
-          npx playwright screenshot --full-page --wait-for-selector "ul.grid" "http://127.0.0.1:3000/en?city=New%20York" screenshots/en-city.png
-          npx playwright screenshot --full-page --wait-for-selector "ul.grid" "http://127.0.0.1:3000/zh?city=%E4%B8%8A%E6%B5%B7" screenshots/zh-city.png
+
+          # EN light/dark
+          npx playwright screenshot --full-page --color-scheme=light --wait-for-selector "ul.grid li" "http://127.0.0.1:3000/en?city=New%20York" screenshots/en-light-city.png
+          npx playwright screenshot --full-page --color-scheme=dark --wait-for-selector "ul.grid li" "http://127.0.0.1:3000/en?city=New%20York" screenshots/en-dark-city.png
+          npx playwright screenshot --full-page --color-scheme=light --wait-for-selector "ul.grid li" "http://127.0.0.1:3000/en" screenshots/en-light-full.png
+          npx playwright screenshot --full-page --color-scheme=dark --wait-for-selector "ul.grid li" "http://127.0.0.1:3000/en" screenshots/en-dark-full.png
+
+          # ZH light/dark
+          npx playwright screenshot --full-page --color-scheme=light --wait-for-selector "ul.grid li" "http://127.0.0.1:3000/zh?city=%E4%B8%8A%E6%B5%B7" screenshots/zh-light-city.png
+          npx playwright screenshot --full-page --color-scheme=dark --wait-for-selector "ul.grid li" "http://127.0.0.1:3000/zh?city=%E4%B8%8A%E6%B5%B7" screenshots/zh-dark-city.png
+          npx playwright screenshot --full-page --color-scheme=light --wait-for-selector "ul.grid li" "http://127.0.0.1:3000/zh" screenshots/zh-light-full.png
+          npx playwright screenshot --full-page --color-scheme=dark --wait-for-selector "ul.grid li" "http://127.0.0.1:3000/zh" screenshots/zh-dark-full.png
 
       - name: Upload screenshots artifact
         uses: actions/upload-artifact@v4
@@ -65,7 +73,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add screenshots/*.png
+          git add -A screenshots
           git commit -m "docs: auto-update screenshots [skip ci]"
 
           # Avoid non-fast-forward failures when other workflows push to main.
