@@ -11,6 +11,16 @@ All notable changes to this project are documented in this file.
 - Commit screenshot outputs to repository
 
 
+### 📝 Documentation
+
+- Auto-update changelog [skip ci]
+
+
+### 🚀 Added
+
+- Add city autocomplete suggestions (#101)
+
+
 ## [0.1.1] - 2026-03-03
 
 
