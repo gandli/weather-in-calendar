@@ -55,7 +55,7 @@ jobs:
 
       - name: Commit screenshots to repository
         run: |
-          if git diff --quiet screenshots; then
+          if [ -z "$(git status --porcelain screenshots)" ]; then
             echo "No screenshot updates"
             exit 0
           fi
