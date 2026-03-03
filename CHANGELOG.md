@@ -17,8 +17,12 @@ All notable changes to this project are documented in this file.
 
 - Unblock cloudflare deploy by removing r2 cache override (#108)
 
+- Output _worker.js for Cloudflare Pages runtime
+
 
 ### 📝 Documentation
+
+- Auto-update changelog [skip ci]
 
 - Auto-update changelog [skip ci]
 
