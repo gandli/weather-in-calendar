@@ -131,7 +131,29 @@ A modern, premium web application that allows users to seamlessly integrate weat
  npm run build        # Build for production
  npm run start        # Start production server
  npm run lint         # Run ESLint
+ npm run test         # Run basic API/util tests
  ```
+
+### API Error Codes
+
+All API endpoints return a unified error shape:
+
+```json
+{ "code": "BAD_REQUEST", "message": "City parameter is required" }
+```
+
+Common codes:
+
+- `BAD_REQUEST` - missing/invalid query params
+- `INVALID_CITY` - city format/length/encoding is invalid
+- `CITY_NOT_FOUND` - upstream weather provider cannot resolve city
+- `INTERNAL_ERROR` - unexpected server-side failure
+
+### Observability
+
+- `X-Request-Id` response header for request tracing
+- `Server-Timing` response header for quick latency inspection
+- API logs redact/sanitize city inputs before writing logs
 
  ### Building for Production
 

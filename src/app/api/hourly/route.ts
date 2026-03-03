@@ -3,6 +3,7 @@ import { getHourlyWeatherByCity, HourlyWeather } from '@/lib/qweather';
 import { validateCityInput, sanitizeCityInput } from '@/lib/validation';
 import { makeCacheKey, withServerCache } from '@/lib/server-cache';
 import { jsonError } from '@/lib/api-response';
+import { createRequestId, logApiError, logApiEvent, sanitizeForLog } from '@/lib/observability';
 
 const hourlyFormatters = new Map<string, Intl.DateTimeFormat>();
 
@@ -18,7 +19,6 @@ function getHourlyFormatter(locale: string): Intl.DateTimeFormat {
 }
 
 function formatHourlyWeather(hourly: HourlyWeather[], locale: string) {
-  // Optimization: Use cached Intl.DateTimeFormat instance (~10x faster)
   const formatter = getHourlyFormatter(locale);
 
   return hourly.map((hour) => {
@@ -47,6 +47,9 @@ function formatHourlyWeather(hourly: HourlyWeather[], locale: string) {
 }
 
 export async function GET(request: NextRequest) {
+  const startedAt = Date.now();
+  const requestId = createRequestId();
+
   try {
     const { searchParams } = new URL(request.url);
     const city = searchParams.get('city');
@@ -55,17 +58,17 @@ export async function GET(request: NextRequest) {
     const hours = hoursParam ? parseInt(hoursParam) : 24;
 
     if (!city) {
-      return jsonError(400, 'BAD_REQUEST', 'City parameter is required');
+      return jsonError(400, 'BAD_REQUEST', 'City parameter is required', { 'X-Request-Id': requestId });
     }
 
     if (hours && (hours < 1 || hours > 168)) {
-      return jsonError(400, 'BAD_REQUEST', 'Hours parameter must be between 1 and 168');
+      return jsonError(400, 'BAD_REQUEST', 'Hours parameter must be between 1 and 168', { 'X-Request-Id': requestId });
     }
 
     const decodedCity = decodeURIComponent(city);
 
     if (!validateCityInput(decodedCity)) {
-      return jsonError(400, 'INVALID_CITY', 'City parameter is too long');
+      return jsonError(400, 'INVALID_CITY', 'City parameter is too long', { 'X-Request-Id': requestId });
     }
 
     const sanitizedCity = sanitizeCityInput(decodedCity);
@@ -77,9 +80,18 @@ export async function GET(request: NextRequest) {
       );
       const formattedWeather = formatHourlyWeather(hourlyWeather, locale);
 
+      logApiEvent('hourly', requestId, {
+        city: sanitizeForLog(sanitizedCity),
+        locale,
+        hours: hourlyWeather.length,
+        durationMs: Date.now() - startedAt,
+      });
+
       const headers = new Headers();
       headers.set('Content-Type', 'application/json');
       headers.set('Cache-Control', 'public, max-age=1800');
+      headers.set('X-Request-Id', requestId);
+      headers.set('Server-Timing', `total;dur=${Date.now() - startedAt}`);
 
       return NextResponse.json({
         city: sanitizedCity,
@@ -92,14 +104,13 @@ export async function GET(request: NextRequest) {
       });
     } catch (weatherError: unknown) {
       if (weatherError instanceof Error && weatherError.message?.includes('not found')) {
-        return jsonError(404, 'CITY_NOT_FOUND', `City not found: ${sanitizedCity}`);
+        return jsonError(404, 'CITY_NOT_FOUND', `City not found: ${sanitizedCity}`, { 'X-Request-Id': requestId });
       }
 
       throw weatherError;
     }
   } catch (error) {
-    console.error('Error generating hourly weather:', error);
-
-    return jsonError(500, 'INTERNAL_ERROR', 'Failed to generate hourly weather forecast');
+    logApiError('hourly', requestId, error);
+    return jsonError(500, 'INTERNAL_ERROR', 'Failed to generate hourly weather forecast', { 'X-Request-Id': requestId });
   }
 }
