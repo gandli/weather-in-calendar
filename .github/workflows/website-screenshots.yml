@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: website-screenshots-main
+  cancel-in-progress: false
+
 jobs:
   capture:
     runs-on: ubuntu-latest
@@ -41,10 +45,10 @@ jobs:
       - name: Capture screenshots (EN/ZH)
         run: |
           mkdir -p screenshots
-          npx playwright screenshot --full-page http://127.0.0.1:3000/en screenshots/en-full.png
-          npx playwright screenshot --full-page http://127.0.0.1:3000/zh screenshots/zh-full.png
-          npx playwright screenshot --full-page "http://127.0.0.1:3000/en?city=New%20York" screenshots/en-city.png
-          npx playwright screenshot --full-page "http://127.0.0.1:3000/zh?city=%E4%B8%8A%E6%B5%B7" screenshots/zh-city.png
+          npx playwright screenshot --full-page --wait-for-selector "ul.grid" http://127.0.0.1:3000/en screenshots/en-full.png
+          npx playwright screenshot --full-page --wait-for-selector "ul.grid" http://127.0.0.1:3000/zh screenshots/zh-full.png
+          npx playwright screenshot --full-page --wait-for-selector "ul.grid" "http://127.0.0.1:3000/en?city=New%20York" screenshots/en-city.png
+          npx playwright screenshot --full-page --wait-for-selector "ul.grid" "http://127.0.0.1:3000/zh?city=%E4%B8%8A%E6%B5%B7" screenshots/zh-city.png
 
       - name: Upload screenshots artifact
         uses: actions/upload-artifact@v4
@@ -63,4 +67,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add screenshots/*.png
           git commit -m "docs: auto-update screenshots [skip ci]"
-          git push
+
+          # Avoid non-fast-forward failures when other workflows push to main.
+          git pull --rebase origin main
+          git push origin HEAD:main
