@@ -11,7 +11,14 @@ All notable changes to this project are documented in this file.
 - Add cloudflare deployment workflow (#106)
 
 
+### 🐞 Fixed
+
+- Remove proxy file for cloudflare compatibility (#107)
+
+
 ### 📝 Documentation
+
+- Auto-update changelog [skip ci]
 
 - Auto-update changelog [skip ci]
 
