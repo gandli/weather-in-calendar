@@ -11,6 +11,15 @@ interface QWeatherLocation {
   rank: string;
 }
 
+export interface CitySuggestion {
+  id: string;
+  name: string;
+  displayName: string;
+  country: string;
+  adm1: string;
+  adm2: string;
+}
+
 interface QWeatherLocationResponse {
   code: string;
   location: QWeatherLocation[];
@@ -200,7 +209,7 @@ export function getWeatherEmoji(icon: string): string {
   return emojiMap[icon] || '🌡️';
 }
 
-export async function searchCity(city: string): Promise<string | null> {
+export async function lookupCitySuggestions(city: string, limit = 8): Promise<CitySuggestion[]> {
   try {
     const url = `${QWEATHER_GEO_API}?location=${encodeURIComponent(city)}`;
     const headers = QWEATHER_API_KEY ? { 'X-QW-Api-Key': QWEATHER_API_KEY } : undefined;
@@ -210,20 +219,35 @@ export async function searchCity(city: string): Promise<string | null> {
     });
 
     if (!response.ok) {
-      return null;
+      return [];
     }
 
     const data: QWeatherLocationResponse = await response.json();
 
     if (data.code === '200' && data.location && data.location.length > 0) {
-      return data.location[0].id;
+      return data.location.slice(0, limit).map((loc) => {
+        const region = [loc.adm2, loc.adm1, loc.country].filter(Boolean).join(', ');
+        return {
+          id: loc.id,
+          name: loc.name,
+          displayName: region ? `${loc.name} (${region})` : loc.name,
+          country: loc.country,
+          adm1: loc.adm1,
+          adm2: loc.adm2,
+        };
+      });
     }
 
-    return null;
+    return [];
   } catch (error) {
-    console.error('Error searching city:', error);
-    return null;
+    console.error('Error searching city suggestions:', error);
+    return [];
   }
+}
+
+export async function searchCity(city: string): Promise<string | null> {
+  const suggestions = await lookupCitySuggestions(city, 1);
+  return suggestions[0]?.id ?? null;
 }
 
 export async function getWeatherForecast(locationId: string, days: number = 7): Promise<WeatherEvent[]> {

@@ -18,7 +18,13 @@ function useDebounce<T>(value: T, delay: number): T {
     return debouncedValue;
 }
 
-const CITY_SUGGESTIONS = {
+type CitySuggestion = {
+    id?: string;
+    name: string;
+    displayName?: string;
+};
+
+const FALLBACK_CITY_SUGGESTIONS = {
     en: ["New York", "London", "Tokyo", "Singapore", "Sydney", "San Francisco", "Berlin", "Paris", "Hong Kong", "Fuzhou"],
     zh: ["上海", "北京", "广州", "深圳", "杭州", "福州", "成都", "重庆", "苏州", "厦门"],
 };
@@ -36,17 +42,23 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
     const [inputError, setInputError] = useState<string | null>(null);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
+    const [remoteSuggestions, setRemoteSuggestions] = useState<CitySuggestion[]>([]);
     const inputRef = useRef<HTMLInputElement>(null);
-    const debouncedCity = useDebounce(city, 500);
+    const debouncedCity = useDebounce(city, 300);
 
-    const suggestions = useMemo(() => {
-        const list = locale === 'zh' ? CITY_SUGGESTIONS.zh : CITY_SUGGESTIONS.en;
+    const suggestions = useMemo<CitySuggestion[]>(() => {
+        if (remoteSuggestions.length > 0) {
+            return remoteSuggestions;
+        }
+
+        const list = locale === 'zh' ? FALLBACK_CITY_SUGGESTIONS.zh : FALLBACK_CITY_SUGGESTIONS.en;
         const q = city.trim().toLowerCase();
-        if (!q) return list.slice(0, 6);
-        return list
-            .filter((item) => item.toLowerCase().includes(q) && item.toLowerCase() !== q)
-            .slice(0, 6);
-    }, [city, locale]);
+        const filtered = !q
+            ? list.slice(0, 6)
+            : list.filter((item) => item.toLowerCase().includes(q) && item.toLowerCase() !== q).slice(0, 6);
+
+        return filtered.map((name) => ({ name, displayName: name }));
+    }, [city, locale, remoteSuggestions]);
 
     const isValidCity = (name: string) => {
         const trimmed = name.trim();
@@ -101,6 +113,40 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
             setHasData(false);
         }
     }, [city, initialCity]);
+
+    useEffect(() => {
+        const q = debouncedCity.trim();
+
+        if (!q || q.length < 2 || !isValidCity(q)) {
+            setRemoteSuggestions([]);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        fetch(`/api/city-suggest?q=${encodeURIComponent(q)}`, { signal: controller.signal })
+            .then(async (res): Promise<{ suggestions: CitySuggestion[] }> => {
+                if (!res.ok) return { suggestions: [] };
+                const data: unknown = await res.json();
+                if (
+                    typeof data === 'object' &&
+                    data !== null &&
+                    'suggestions' in data &&
+                    Array.isArray((data as { suggestions: unknown }).suggestions)
+                ) {
+                    return { suggestions: (data as { suggestions: CitySuggestion[] }).suggestions };
+                }
+                return { suggestions: [] };
+            })
+            .then((data) => {
+                setRemoteSuggestions(data.suggestions);
+            })
+            .catch(() => {
+                setRemoteSuggestions([]);
+            });
+
+        return () => controller.abort();
+    }, [debouncedCity]);
 
     useEffect(() => {
         const trimmedCity = debouncedCity.trim();
@@ -167,7 +213,8 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
         }, 120);
     };
 
-    const handleSuggestionSelect = (selectedCity: string) => {
+    const handleSuggestionSelect = (selected: CitySuggestion) => {
+        const selectedCity = selected.name;
         setCity(selectedCity);
         setShowSuggestions(false);
         setActiveSuggestionIndex(-1);
@@ -251,7 +298,7 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
                 {showSuggestions && suggestions.length > 0 && (
                     <ul className="absolute z-20 mt-2 w-full rounded-2xl border bg-background/95 backdrop-blur-sm shadow-lg p-2">
                         {suggestions.map((suggestion, index) => (
-                            <li key={suggestion}>
+                            <li key={`${suggestion.id || suggestion.name}-${index}`}>
                                 <button
                                     type="button"
                                     className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-colors ${
@@ -262,7 +309,7 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
                                     onMouseDown={(e) => e.preventDefault()}
                                     onClick={() => handleSuggestionSelect(suggestion)}
                                 >
-                                    {suggestion}
+                                    {suggestion.displayName || suggestion.name}
                                 </button>
                             </li>
                         ))}
