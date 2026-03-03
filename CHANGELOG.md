@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## [unreleased]
+
+
+
+### ci
+
+- Add cloudflare deployment workflow (#106)
+
+
+### 📝 Documentation
+
+- Auto-update changelog [skip ci]
+
+
 ## [0.1.2] - 2026-03-03
 
 
