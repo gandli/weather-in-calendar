@@ -16,6 +16,12 @@ interface RawWeatherEvent extends Omit<WeatherEvent, 'date'> {
     date: string | Date;
 }
 
+interface ApiErrorPayload {
+    code?: string;
+    message?: string;
+    error?: string;
+}
+
 // Optimization: Ensure dates are instantiated once and stored in state
 // to avoid repeated `new Date()` calls during rendering loops.
 function normalizeWeatherData(data: (RawWeatherEvent | WeatherEvent)[]): WeatherEvent[] {
@@ -62,29 +68,37 @@ export function WeatherDisplay({
             return;
         }
 
+        const controller = new AbortController();
+
         const fetchWeather = async () => {
             setIsLoading(true);
             setError(null);
             window.dispatchEvent(new CustomEvent('weather-status', { detail: { hasData: false, isLoading: true } }));
             try {
-                const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
-                const data = await response.json() as RawWeatherEvent[] & { error?: string };
+                const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`, {
+                    signal: controller.signal,
+                });
+                const data = await response.json() as RawWeatherEvent[] | ApiErrorPayload;
 
                 if (!response.ok) {
                     if (response.status === 404) {
                         setError(t('cityNotFound', { city }));
                     } else {
-                        setError(data.error || 'Failed to fetch weather');
+                        const apiError = data as ApiErrorPayload;
+                        setError(apiError.message || apiError.error || 'Failed to fetch weather');
                     }
                     setWeatherData([]);
                     window.dispatchEvent(new CustomEvent('weather-status', { detail: { hasData: false, isLoading: false } }));
                     return;
                 }
 
-                const processedData = normalizeWeatherData(data);
+                const processedData = normalizeWeatherData(data as RawWeatherEvent[]);
                 setWeatherData(processedData);
                 window.dispatchEvent(new CustomEvent('weather-status', { detail: { hasData: true, isLoading: false } }));
             } catch (err) {
+                if (err instanceof Error && err.name === 'AbortError') {
+                    return;
+                }
                 const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
                 console.error('Weather fetch error:', err);
                 setError(errorMessage);
@@ -96,6 +110,8 @@ export function WeatherDisplay({
         };
 
         fetchWeather();
+
+        return () => controller.abort();
     }, [city, initialCity, initialData, t]);
 
 

@@ -1,4 +1,4 @@
-/// <reference path="../../cloudflare-env.d.ts" />
+import '../../cloudflare-env';
 
 /**
  * This script verifies that the type definition for RequestInitCfPropertiesImage

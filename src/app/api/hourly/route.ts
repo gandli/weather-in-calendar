@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getHourlyWeatherByCity, HourlyWeather } from '@/lib/qweather';
 import { validateCityInput, sanitizeCityInput } from '@/lib/validation';
+import { makeCacheKey, withServerCache } from '@/lib/server-cache';
+import { jsonError } from '@/lib/api-response';
 
 const hourlyFormatters = new Map<string, Intl.DateTimeFormat>();
 
@@ -53,32 +55,26 @@ export async function GET(request: NextRequest) {
     const hours = hoursParam ? parseInt(hoursParam) : 24;
 
     if (!city) {
-      return NextResponse.json(
-        { error: 'City parameter is required' },
-        { status: 400 }
-      );
+      return jsonError(400, 'BAD_REQUEST', 'City parameter is required');
     }
 
     if (hours && (hours < 1 || hours > 168)) {
-      return NextResponse.json(
-        { error: 'Hours parameter must be between 1 and 168' },
-        { status: 400 }
-      );
+      return jsonError(400, 'BAD_REQUEST', 'Hours parameter must be between 1 and 168');
     }
 
     const decodedCity = decodeURIComponent(city);
 
     if (!validateCityInput(decodedCity)) {
-      return NextResponse.json(
-        { error: 'City parameter is too long' },
-        { status: 400 }
-      );
+      return jsonError(400, 'INVALID_CITY', 'City parameter is too long');
     }
 
     const sanitizedCity = sanitizeCityInput(decodedCity);
 
     try {
-      const hourlyWeather = await getHourlyWeatherByCity(sanitizedCity, hours);
+      const cacheKey = makeCacheKey('hourly', [sanitizedCity.toLowerCase(), hours, locale]);
+      const hourlyWeather = await withServerCache(cacheKey, 15 * 60 * 1000, () =>
+        getHourlyWeatherByCity(sanitizedCity, hours)
+      );
       const formattedWeather = formatHourlyWeather(hourlyWeather, locale);
 
       const headers = new Headers();
@@ -96,10 +92,7 @@ export async function GET(request: NextRequest) {
       });
     } catch (weatherError: unknown) {
       if (weatherError instanceof Error && weatherError.message?.includes('not found')) {
-        return NextResponse.json(
-          { error: `City not found: ${sanitizedCity}` },
-          { status: 404 }
-        );
+        return jsonError(404, 'CITY_NOT_FOUND', `City not found: ${sanitizedCity}`);
       }
 
       throw weatherError;
@@ -107,9 +100,6 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error generating hourly weather:', error);
 
-    return NextResponse.json(
-      { error: 'Failed to generate hourly weather forecast' },
-      { status: 500 }
-    );
+    return jsonError(500, 'INTERNAL_ERROR', 'Failed to generate hourly weather forecast');
   }
 }

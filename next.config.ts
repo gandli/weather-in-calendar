@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
     unoptimized: true
   },
   trailingSlash: true,
+  turbopack: {
+    root: __dirname,
+  },
   async headers() {
     return [
       {

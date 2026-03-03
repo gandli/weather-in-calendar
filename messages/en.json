@@ -13,6 +13,9 @@
         "description": "Get beautiful emoji weather forecasts directly in your Google Calendar, Outlook, or Apple Calendar. No apps to install.",
         "placeholder": "Enter your city (e.g. New York)",
         "generate": "Subscribe",
+        "generating": "Generating...",
+        "waitWeatherData": "Waiting for data",
+        "fixInputFirst": "Fix input first",
         "successTitle": "Your Calendar is Ready!",
         "successDesc": "Subscribe to the following URL in your calendar app to get the weather forecast for {city}.",
         "copy": "Copy",
@@ -56,5 +59,9 @@
     },
     "Footer": {
         "copyright": "© {year} WeatherCal. Crafted with ❤️ for better planning."
+    },
+    "Meta": {
+        "title": "Weather in Calendar - Forecast in Your Calendar",
+        "description": "Subscribe to city weather forecasts as calendar events. Works with Google Calendar, Outlook, and Apple Calendar."
     }
 }
