@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## [unreleased]
+## [0.1.2] - 2026-03-03
 
 
 
@@ -29,6 +29,13 @@ All notable changes to this project are documented in this file.
 - Auto-update changelog [skip ci]
 
 - Auto-update changelog [skip ci]
+
+- Auto-update changelog [skip ci]
+
+
+### 🔧 Chore
+
+- Bump version to 0.1.2
 
 
 ### 🚀 Added
