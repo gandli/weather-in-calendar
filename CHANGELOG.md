@@ -11,7 +11,14 @@ All notable changes to this project are documented in this file.
 - Commit screenshot outputs to repository
 
 
+### 🐞 Fixed
+
+- Detect screenshot changes including new files (#102)
+
+
 ### 📝 Documentation
+
+- Auto-update changelog [skip ci]
 
 - Auto-update changelog [skip ci]
 
