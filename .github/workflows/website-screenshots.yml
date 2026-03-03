@@ -1,0 +1,51 @@
+name: Website Screenshots
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build app
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start app
+        run: npm run start -- --hostname 127.0.0.1 --port 3000 &
+
+      - name: Wait for app
+        run: npx wait-on http://127.0.0.1:3000/en
+
+      - name: Capture screenshots (EN/ZH)
+        run: |
+          mkdir -p screenshots
+          npx playwright screenshot --full-page http://127.0.0.1:3000/en screenshots/en-full.png
+          npx playwright screenshot --full-page http://127.0.0.1:3000/zh screenshots/zh-full.png
+          npx playwright screenshot --full-page "http://127.0.0.1:3000/en?city=New%20York" screenshots/en-city.png
+          npx playwright screenshot --full-page "http://127.0.0.1:3000/zh?city=%E4%B8%8A%E6%B5%B7" screenshots/zh-city.png
+
+      - name: Upload screenshots artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-screenshots
+          path: screenshots
+          if-no-files-found: error
