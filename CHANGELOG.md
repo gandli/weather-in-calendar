@@ -15,8 +15,12 @@ All notable changes to this project are documented in this file.
 
 - Remove proxy file for cloudflare compatibility (#107)
 
+- Unblock cloudflare deploy by removing r2 cache override (#108)
+
 
 ### 📝 Documentation
+
+- Auto-update changelog [skip ci]
 
 - Auto-update changelog [skip ci]
 
