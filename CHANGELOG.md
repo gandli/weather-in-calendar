@@ -28,12 +28,16 @@ All notable changes to this project are documented in this file.
 
 - Auto-update changelog [skip ci]
 
+- Auto-update changelog [skip ci]
+
 
 ### 🚀 Added
 
 - Add city autocomplete suggestions (#101)
 
 - Add smart city autocomplete with api suggestions (#103)
+
+- Capture screenshots by locale and theme (#105)
 
 
 ## [0.1.1] - 2026-03-03
