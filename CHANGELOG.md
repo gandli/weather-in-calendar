@@ -8,6 +8,15 @@ All notable changes to this project are documented in this file.
 
 ### ci
 
+- Commit screenshot outputs to repository
+
+
+## [0.1.1] - 2026-03-03
+
+
+
+### ci
+
 - Add screenshot and auto-changelog workflows (#100)
 
 
@@ -52,6 +61,8 @@ All notable changes to this project are documented in this file.
 - 更新 Cloudflare 部署文档中的构建配置说明
 
 - 更新 Cloudflare 部署指南支持 Workers 和 Pages
+
+- Auto-update changelog [skip ci]
 
 
 ### 🔧 Chore
