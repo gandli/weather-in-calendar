@@ -15,8 +15,12 @@ All notable changes to this project are documented in this file.
 
 - Detect screenshot changes including new files (#102)
 
+- Stabilize screenshot workflow push and data readiness (#104)
+
 
 ### 📝 Documentation
+
+- Auto-update changelog [skip ci]
 
 - Auto-update changelog [skip ci]
 
