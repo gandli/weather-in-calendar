@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getWeatherByCity } from '@/lib/qweather';
 import { validateCityInput, sanitizeCityInput } from '@/lib/validation';
 import { generateICSContent } from '@/lib/ics';
+import { makeCacheKey, withServerCache } from '@/lib/server-cache';
+import { jsonError } from '@/lib/api-response';
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,26 +12,23 @@ export async function GET(request: NextRequest) {
     const locale = searchParams.get('locale') || 'en';
 
     if (!city) {
-      return NextResponse.json(
-        { error: 'City parameter is required' },
-        { status: 400 }
-      );
+      return jsonError(400, 'BAD_REQUEST', 'City parameter is required');
     }
 
     const decodedCity = decodeURIComponent(city);
 
     if (!validateCityInput(decodedCity)) {
-      return NextResponse.json(
-        { error: 'City parameter is too long' },
-        { status: 400 }
-      );
+      return jsonError(400, 'INVALID_CITY', 'City parameter is too long');
     }
 
     const sanitizedCity = sanitizeCityInput(decodedCity);
 
     try {
-      const weatherEvents = await getWeatherByCity(sanitizedCity, 15);
-      const icsContent = generateICSContent(weatherEvents, sanitizedCity, locale);
+      const cacheKey = makeCacheKey('ics', [sanitizedCity.toLowerCase(), locale]);
+      const icsContent = await withServerCache(cacheKey, 30 * 60 * 1000, async () => {
+        const weatherEvents = await getWeatherByCity(sanitizedCity, 15);
+        return generateICSContent(weatherEvents, sanitizedCity, locale);
+      });
 
       const buffer = Buffer.from(icsContent, 'utf-8');
 
@@ -44,10 +43,7 @@ export async function GET(request: NextRequest) {
       });
     } catch (weatherError: unknown) {
       if (weatherError instanceof Error && weatherError.message?.includes('not found')) {
-        return NextResponse.json(
-          { error: `City not found: ${sanitizedCity}` },
-          { status: 404 }
-        );
+        return jsonError(404, 'CITY_NOT_FOUND', `City not found: ${sanitizedCity}`);
       }
 
       throw weatherError;
@@ -55,9 +51,6 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error generating ICS:', error);
 
-    return NextResponse.json(
-      { error: 'Failed to generate calendar' },
-      { status: 500 }
-    );
+    return jsonError(500, 'INTERNAL_ERROR', 'Failed to generate calendar');
   }
 }

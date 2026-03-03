@@ -1,49 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getWeatherByCity } from '@/lib/qweather';
 import { validateCityInput, sanitizeCityInput } from '@/lib/validation';
+import { makeCacheKey, withServerCache } from '@/lib/server-cache';
+import { jsonError } from '@/lib/api-response';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const city = searchParams.get('city');
 
   if (!city) {
-    return NextResponse.json(
-      { error: 'City parameter is required' },
-      { status: 400 }
-    );
+    return jsonError(400, 'BAD_REQUEST', 'City parameter is required');
   }
 
   const decodedCity = decodeURIComponent(city);
 
   if (!validateCityInput(decodedCity)) {
-    return NextResponse.json(
-      { error: 'City parameter is too long' },
-      { status: 400 }
-    );
+    return jsonError(400, 'INVALID_CITY', 'City parameter is too long');
   }
 
   const sanitizedCity = sanitizeCityInput(decodedCity);
 
   try {
-    const weatherEvents = await getWeatherByCity(sanitizedCity, 15);
+    const cacheKey = makeCacheKey('weather', [sanitizedCity.toLowerCase(), 15]);
+    const weatherEvents = await withServerCache(cacheKey, 30 * 60 * 1000, () =>
+      getWeatherByCity(sanitizedCity, 15)
+    );
 
-    // Cache for 1 hour to reduce upstream API calls and improve latency
     return NextResponse.json(weatherEvents, {
       headers: {
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
+        'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=1800',
       },
     });
   } catch (error: unknown) {
     if (error instanceof Error && error.message?.includes('not found')) {
-      return NextResponse.json(
-        { error: `City not found: ${sanitizedCity}` },
-        { status: 404 }
-      );
+      return jsonError(404, 'CITY_NOT_FOUND', `City not found: ${sanitizedCity}`);
     }
     console.error('Error fetching weather:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch weather data' },
-      { status: 500 }
-    );
+    return jsonError(500, 'INTERNAL_ERROR', 'Failed to fetch weather data');
   }
 }

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getWeatherByCity } from '@/lib/qweather';
 import { validateCityInput, sanitizeCityInput } from '@/lib/validation';
+import { makeCacheKey, withServerCache } from '@/lib/server-cache';
+import { jsonError } from '@/lib/api-response';
 
 export async function GET(request: NextRequest) {
     try {
@@ -11,33 +13,27 @@ export async function GET(request: NextRequest) {
         const days = daysParam ? parseInt(daysParam) : 7;
 
         if (!city) {
-            return NextResponse.json(
-                { error: 'City parameter is required' },
-                { status: 400 }
-            );
+            return jsonError(400, 'BAD_REQUEST', 'City parameter is required');
         }
 
         let decodedCity: string;
         try {
             decodedCity = decodeURIComponent(city);
-        } catch (e) {
-            return NextResponse.json(
-                { error: 'Invalid city parameter encoding' },
-                { status: 400 }
-            );
+        } catch {
+            return jsonError(400, 'INVALID_CITY', 'Invalid city parameter encoding');
         }
 
         if (!validateCityInput(decodedCity)) {
-            return NextResponse.json(
-                { error: 'City parameter is too long' },
-                { status: 400 }
-            );
+            return jsonError(400, 'INVALID_CITY', 'City parameter is too long');
         }
 
         const sanitizedCity = sanitizeCityInput(decodedCity);
 
         try {
-            const weatherEvents = await getWeatherByCity(sanitizedCity, days);
+            const cacheKey = makeCacheKey('daily', [sanitizedCity.toLowerCase(), days]);
+            const weatherEvents = await withServerCache(cacheKey, 30 * 60 * 1000, () =>
+                getWeatherByCity(sanitizedCity, days)
+            );
 
             const headers = new Headers();
             headers.set('Content-Type', 'application/json');
@@ -54,19 +50,13 @@ export async function GET(request: NextRequest) {
             });
         } catch (weatherError: unknown) {
             if (weatherError instanceof Error && weatherError.message?.includes('not found')) {
-                return NextResponse.json(
-                    { error: `City not found: ${sanitizedCity}` },
-                    { status: 404 }
-                );
+                return jsonError(404, 'CITY_NOT_FOUND', `City not found: ${sanitizedCity}`);
             }
             throw weatherError;
         }
     } catch (error) {
         console.error('Error fetching daily weather:', error);
 
-        return NextResponse.json(
-            { error: 'Failed to fetch daily weather forecast' },
-            { status: 500 }
-        );
+        return jsonError(500, 'INTERNAL_ERROR', 'Failed to fetch daily weather forecast');
     }
 }

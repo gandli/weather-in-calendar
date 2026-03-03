@@ -13,6 +13,9 @@
         "description": "在你的 Google Calendar, Outlook 或 Apple Calendar 中直接获取精美的 Emoji 天气预报。无需安装 App。",
         "placeholder": "输入城市 (例如: 上海)",
         "generate": "订阅日历",
+        "generating": "生成中...",
+        "waitWeatherData": "等待天气数据",
+        "fixInputFirst": "先修正输入",
         "successTitle": "你的日历已就绪！",
         "successDesc": "在你的日历应用中订阅以下 URL，即可获取 {city} 的天气预报。",
         "copy": "复制",
@@ -56,5 +59,9 @@
     },
     "Footer": {
         "copyright": "© {year} WeatherCal. 用 ❤️ 打造，只为更好的规划。"
+    },
+    "Meta": {
+        "title": "Weather in Calendar - 把天气预报放进日历",
+        "description": "把城市天气预报订阅成日历事件，支持 Google 日历、Outlook 和 Apple 日历。"
     }
 }

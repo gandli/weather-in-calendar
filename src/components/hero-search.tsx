@@ -28,6 +28,7 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
     const [isLoading, setIsLoading] = useState(false);
     const [isWeatherLoading, setIsWeatherLoading] = useState(false);
     const [hasData, setHasData] = useState(hasInitialData);
+    const [inputError, setInputError] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const debouncedCity = useDebounce(city, 500);
 
@@ -85,17 +86,20 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
         const trimmedCity = debouncedCity.trim();
         if (trimmedCity !== initialCity.trim()) {
             if (trimmedCity === "") {
+                setInputError(null);
                 updateUrl("", true);
                 window.dispatchEvent(new CustomEvent('city-change', { detail: { city: "" } }));
             } else if (isValidCity(trimmedCity)) {
+                setInputError(null);
                 updateUrl(trimmedCity, true);
                 window.dispatchEvent(new CustomEvent('city-change', { detail: { city: trimmedCity } }));
             } else {
+                setInputError(t('invalidCity'));
                 updateUrl(trimmedCity, true);
                 window.dispatchEvent(new CustomEvent('city-change', { detail: { city: "" } }));
             }
         }
-    }, [debouncedCity, initialCity, updateUrl]);
+    }, [debouncedCity, initialCity, updateUrl, t]);
 
     const handleGenerate = useCallback(() => {
         if (!city || isLoading || isWeatherLoading || !hasData) return;
@@ -140,8 +144,18 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
 
     const handleClear = () => {
         setCity('');
+        setInputError(null);
         inputRef.current?.focus();
     };
+
+    const canSubmit = !!city && !inputError && hasData && !isLoading && !isWeatherLoading;
+    const buttonLabel = isLoading || isWeatherLoading
+        ? t('generating')
+        : inputError
+            ? t('fixInputFirst')
+            : !hasData && city
+                ? t('waitWeatherData')
+                : t('generate');
 
     return (
         <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-2 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
@@ -155,7 +169,7 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
                     onChange={(e) => setCity(e.target.value)}
                     onBlur={handleBlur}
                     onKeyDown={(e) => {
-                        if (e.key === "Enter" && !isLoading && !isWeatherLoading && city && hasData) {
+                        if (e.key === "Enter" && canSubmit) {
                             handleGenerate();
                         }
                     }}
@@ -176,11 +190,15 @@ export function HeroSearch({ initialCity, hasInitialData }: { initialCity: strin
                 size="lg"
                 className="h-12 rounded-full px-8 shadow-lg shadow-primary/25"
                 onClick={handleGenerate}
-                disabled={isLoading || isWeatherLoading || !city || !hasData}
+                disabled={!canSubmit}
             >
-                {isLoading || isWeatherLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('generate')}
+                {isLoading || isWeatherLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                <span className={(isLoading || isWeatherLoading) ? 'ml-2' : ''}>{buttonLabel}</span>
                 {!isLoading && !isWeatherLoading && <ArrowRight className="w-4 h-4 ml-2" />}
             </Button>
+            {inputError && (
+                <p className="text-sm text-destructive text-left sm:text-center sm:basis-full">{inputError}</p>
+            )}
         </div>
     );
 }
