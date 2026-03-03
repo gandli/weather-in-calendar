@@ -7,6 +7,11 @@ export type ApiErrorCode =
   | 'UPSTREAM_ERROR'
   | 'INTERNAL_ERROR';
 
-export function jsonError(status: number, code: ApiErrorCode, message: string) {
-  return NextResponse.json({ code, message }, { status });
+export function jsonError(
+  status: number,
+  code: ApiErrorCode,
+  message: string,
+  headers?: HeadersInit
+) {
+  return NextResponse.json({ code, message }, { status, headers });
 }
