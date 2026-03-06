@@ -10,6 +10,8 @@ All notable changes to this project are documented in this file.
 
 - Add cloudflare deployment workflow (#106)
 
+- Add Cloudflare Pages deployment workflow for main branch
+
 
 ### 🐞 Fixed
 
@@ -21,6 +23,8 @@ All notable changes to this project are documented in this file.
 
 
 ### 📝 Documentation
+
+- Auto-update changelog [skip ci]
 
 - Auto-update changelog [skip ci]
 
