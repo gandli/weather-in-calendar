@@ -36,10 +36,14 @@ All notable changes to this project are documented in this file.
 
 - Auto-update changelog [skip ci]
 
+- Auto-update changelog [skip ci]
+
 
 ### 🔧 Chore
 
 - Trigger pages rebuild after nodejs_compat flag
+
+- Bump fast-xml-parser (#109)
 
 
 ## [0.1.2] - 2026-03-03
