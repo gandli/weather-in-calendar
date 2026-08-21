@@ -38,6 +38,10 @@ All notable changes to this project are documented in this file.
 
 - Auto-update changelog [skip ci]
 
+- Auto-update changelog [skip ci]
+
+- Condense README — proof first, cut deployment marketing (#111)
+
 
 ### 🔧 Chore
 
