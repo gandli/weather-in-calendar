@@ -42,12 +42,16 @@ All notable changes to this project are documented in this file.
 
 - Condense README — proof first, cut deployment marketing (#111)
 
+- Auto-update changelog [skip ci]
+
 
 ### 🔧 Chore
 
 - Trigger pages rebuild after nodejs_compat flag
 
 - Bump fast-xml-parser (#109)
+
+- Bump the npm_and_yarn group across 1 directory with 14 updates (#110)
 
 
 ## [0.1.2] - 2026-03-03
